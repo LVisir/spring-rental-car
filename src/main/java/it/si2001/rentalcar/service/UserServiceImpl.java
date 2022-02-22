@@ -1,13 +1,19 @@
 package it.si2001.rentalcar.service;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import it.si2001.rentalcar.entity.User;
 import it.si2001.rentalcar.exception.ResourceAlreadyExistingException;
 import it.si2001.rentalcar.exception.ResourceNotFoundException;
 import it.si2001.rentalcar.repository.UserRepository;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -89,13 +95,27 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
+    public ResponseEntity<ObjectNode> manageExceptions(Exception e, Logger logger, ObjectNode responseNode, HttpHeaders headers) {
 
-    @Override
-    public User getUserByEmailAndCf(String email, String cf) {
-        return userRepository.findByEmailAndCf(email, cf);
+        if(e.getCause().getCause() instanceof SQLException){
+
+            logger.info("***** "+e.getCause().getCause()+" *****");
+
+            responseNode.put("code", "error");
+
+            responseNode.put("message", e.getCause().getCause().getMessage());
+
+            return new ResponseEntity<>(responseNode, headers, HttpStatus.BAD_REQUEST);
+        }
+
+        logger.info("***** "+e.getCause().getMessage()+" *****");
+
+        responseNode.put("code", "error");
+
+        responseNode.put("message", e.getCause().getMessage());
+
+        return new ResponseEntity<>(responseNode, headers, HttpStatus.BAD_REQUEST);
+
     }
 
 }

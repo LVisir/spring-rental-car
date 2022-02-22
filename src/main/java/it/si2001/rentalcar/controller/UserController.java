@@ -59,17 +59,13 @@ public class UserController {
 
         }catch (ResourceNotFoundException e){
 
+            logger.info("***** Fetch the user with id "+id+" not found *****");
+
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
         }catch (Exception e){
 
-            logger.info("***** "+e.getCause().getCause().getMessage()+" *****");
-
-            responseNode.put("code", "error");
-
-            responseNode.put("message", e.getCause().getCause().getMessage());
-
-            return new ResponseEntity<>(responseNode, headers, HttpStatus.BAD_REQUEST);
+            return userService.manageExceptions(e, logger, responseNode, headers);
 
         }
 
@@ -98,19 +94,15 @@ public class UserController {
 
         }catch (Exception e){
 
-            logger.info("***** "+e.getCause().getCause().getMessage()+" *****");
-
-            responseNode.put("code", "error");
-
-            responseNode.put("message", e.getCause().getCause().getMessage());
-
-            return new ResponseEntity<>(responseNode, headers, HttpStatus.BAD_REQUEST);
+            return userService.manageExceptions(e, logger, responseNode, headers);
 
         }
 
         return new ResponseEntity<>(HttpStatus.CREATED);
 
     }
+
+
 
     @DeleteMapping(value = "/deleteUser/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable("id") Long id){
@@ -135,13 +127,7 @@ public class UserController {
 
         }catch (Exception e){
 
-            logger.info("***** "+e.getCause().getCause().getMessage()+" *****");
-
-            responseNode.put("code", "error");
-
-            responseNode.put("message", e.getCause().getCause().getMessage());
-
-            return new ResponseEntity<>(responseNode, headers, HttpStatus.BAD_REQUEST);
+            return userService.manageExceptions(e, logger, responseNode, headers);
 
         }
 
@@ -149,6 +135,8 @@ public class UserController {
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+
 
     @PutMapping(value = "/update/{id}")
     public ResponseEntity<?> updateUser(@RequestBody User u, @PathVariable("id") Long id){
@@ -171,13 +159,7 @@ public class UserController {
 
         }catch (Exception e){
 
-            logger.info("***** "+e.getCause().getCause()+" *****");
-
-            responseNode.put("code", "error");
-
-            responseNode.put("message", e.getCause().getCause().getMessage());
-
-            return new ResponseEntity<>(responseNode, headers, HttpStatus.BAD_REQUEST);
+            return userService.manageExceptions(e, logger, responseNode, headers);
 
         }
 
