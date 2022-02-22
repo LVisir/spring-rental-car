@@ -22,4 +22,8 @@ public interface UserService {
 
     public ResponseEntity<ObjectNode> manageExceptions(Exception e, Logger logger, ObjectNode responseNode, HttpHeaders headers);
 
+    public List<User> getUsersSortedBy(String field);
+
+    public List<User> getPagingUsersMultipleSortOrder(int offset,int pageSize, List<String> order, List<String> fields);
+
 }
