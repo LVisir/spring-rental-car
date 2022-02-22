@@ -29,6 +29,10 @@ public class UserController {
 
     private final ObjectNode responseNode = mapper.createObjectNode();
 
+
+
+
+
     @GetMapping(produces = "application/json")
     public ResponseEntity<List<User>> listAllUsers(){
         logger.info("***** Fetch users *****");
@@ -41,6 +45,10 @@ public class UserController {
 
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
+
+
+
+
 
     @GetMapping(value = "/{id}", produces = "application/json")
     public ResponseEntity<?> getUser(@PathVariable("id") Long id) {
@@ -73,6 +81,10 @@ public class UserController {
 
     }
 
+
+
+
+
     @PostMapping(value = "/addUser")
     public ResponseEntity<ObjectNode> insertUser(@RequestBody User u){    // @RequestBody it takes a JSON format
 
@@ -104,6 +116,8 @@ public class UserController {
 
 
 
+
+
     @DeleteMapping(value = "/deleteUser/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable("id") Long id){
 
@@ -121,7 +135,7 @@ public class UserController {
 
         }catch (ResourceNotFoundException e){
 
-            logger.warn("***** User to delete doesn't exists ");
+            logger.warn("***** "+e.getMessage()+" *****");
 
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
@@ -135,6 +149,8 @@ public class UserController {
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+
 
 
 
