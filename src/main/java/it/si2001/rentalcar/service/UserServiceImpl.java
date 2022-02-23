@@ -7,6 +7,7 @@ import it.si2001.rentalcar.exception.ResourceNotFoundException;
 import it.si2001.rentalcar.repository.UserRepository;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
@@ -163,12 +164,19 @@ public class UserServiceImpl implements UserService{
     }
 
 
-
-
-
+    /**
+     * By taking a list of fields to order and the corresponding list of order type (asc|desc)
+     * it will sort by the above settings
+     * @param offset
+     * @param pageSize
+     * @param order
+     * @param fields
+     * @return
+     */
     @Override
-    public List<User> getPagingUsersMultipleSortOrder(int offset,int pageSize, List<String> order, List<String> fields) {
+    public Page<User> getPagingUsersMultipleSortOrder(int offset, int pageSize, List<String> order, List<String> fields) {
 
+        // will contains a list of objects of the form (asc|desc)
         List<Sort.Direction> directions = new ArrayList<>();
 
         for(String s : order){
@@ -180,14 +188,15 @@ public class UserServiceImpl implements UserService{
             }
         }
 
+        // will contains a list og objects of {(asc|desc), field1}, {(asc|desc), field2}, {(asc|desc), field3}, ...
         List<Sort.Order> sortOrders = new ArrayList<>();
 
         IntStream.range(0, order.size())
                         .forEach(index -> sortOrders.add(new Sort.Order(directions.get(index), fields.get(index))));
 
-        userRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(sortOrders)));
 
-        return null;
+
+        return userRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(sortOrders)));
     }
 
 }

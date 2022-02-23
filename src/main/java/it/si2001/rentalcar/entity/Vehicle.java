@@ -1,6 +1,8 @@
 package it.si2001.rentalcar.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.hibernate.Hibernate;
 
@@ -18,6 +20,7 @@ import java.util.Objects;
 @ToString
 @RequiredArgsConstructor
 @Table(name = "vehicles")
+@JsonIgnoreProperties({"vehicleBookings"})
 public class Vehicle implements Serializable {
 
     @Serial
@@ -47,8 +50,10 @@ public class Vehicle implements Serializable {
     @Enumerated(EnumType.STRING)
     private Typology typology;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "vehicle")
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "vehicle")
     @JsonManagedReference
+    @JsonProperty("vehicleBookings")
+    @ToString.Exclude
     private List<Booking> bookings = new ArrayList<>();
 
     @Override

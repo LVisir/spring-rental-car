@@ -1,6 +1,8 @@
 package it.si2001.rentalcar.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.hibernate.Hibernate;
 
@@ -18,6 +20,7 @@ import java.util.Objects;
 @ToString
 @RequiredArgsConstructor
 @Table(name = "users")
+@JsonIgnoreProperties({"userBookings"})
 public class User implements Serializable {
 
     @Serial
@@ -53,8 +56,13 @@ public class User implements Serializable {
     @Column(name = "password")
     private String password;
 
+    // FetchType.LAZY works only if you use @JsonIgnoreProperties({"userBookings"}) because by ignoring the JSON properties Spring will listen the FetchType
+    // If FetchType.EAGER is set, if @JsonIgnoreProperties({"userBookings"}) is set too, the JSON will not return the child entity but the select will be fetched EAGERLY
+    // if u will not ignore the JSON properties, doesn't matter the FetchType, the select will follow the JSON properties
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
-    //@JsonManagedReference
+    @ToString.Exclude
+    @JsonManagedReference
+    @JsonProperty("userBookings")
     private List<Booking> bookings = new ArrayList<>();
 
     @Override

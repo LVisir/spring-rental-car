@@ -9,6 +9,7 @@ import it.si2001.rentalcar.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -96,6 +97,8 @@ public class UserController {
 
             logger.info("***** Insert user *****");
 
+            logger.info(u.getIdUser()+" "+u.getName()+" "+u.getSurname()+" "+u.getCf()+" "+u.getRole()+" "+u.getPassword()+" "+u.getEmail()+" "+u.getBirthDate());
+
             userService.insertUser(u);
 
         }catch (ResourceAlreadyExistingException e){
@@ -180,6 +183,21 @@ public class UserController {
         }
 
         return new ResponseEntity<>(u, HttpStatus.OK);
+
+    }
+
+
+
+    @GetMapping(value = "/sortBy", produces = "application/json")
+    public ResponseEntity<?> getSortedListByOrderTypesAtSomePage(@RequestParam("_page") int page,
+                                                                 @RequestParam("_sort") List<String> fields,
+                                                                 @RequestParam("_order") List<String> order){
+
+        // the page get from input minus 1 because it is the offset so the page start from 0 and not from 1 differently from the front-end when you are requesting the exact page
+        // the pageSize is 10 but it can change based on the use
+        Page<User> usersSorted = userService.getPagingUsersMultipleSortOrder(--page, 10, order, fields);
+
+        return new ResponseEntity<>(usersSorted.getContent(), HttpStatus.OK);
 
     }
 

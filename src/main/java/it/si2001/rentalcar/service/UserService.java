@@ -3,6 +3,7 @@ package it.si2001.rentalcar.service;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import it.si2001.rentalcar.entity.User;
 import org.slf4j.Logger;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 
@@ -24,6 +25,6 @@ public interface UserService {
 
     public List<User> getUsersSortedBy(String field);
 
-    public List<User> getPagingUsersMultipleSortOrder(int offset,int pageSize, List<String> order, List<String> fields);
+    public Page<User> getPagingUsersMultipleSortOrder(int offset, int pageSize, List<String> order, List<String> fields);
 
 }
