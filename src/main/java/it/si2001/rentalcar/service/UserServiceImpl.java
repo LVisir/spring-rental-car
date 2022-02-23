@@ -7,9 +7,7 @@ import it.si2001.rentalcar.exception.ResourceNotFoundException;
 import it.si2001.rentalcar.repository.UserRepository;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,10 +15,8 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Service
@@ -198,5 +194,116 @@ public class UserServiceImpl implements UserService{
 
         return userRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(sortOrders)));
     }
+
+
+
+
+
+    @Override
+    public List<User> findAllCustomer() {
+
+        List<User> customers = userRepository.findByRole(User.Role.CUSTOMER);
+
+        return customers;
+    }
+
+
+
+
+
+    @Override
+    public List<User> findAllCustomersWithPaging(int offset, int pageSize) {
+
+        List<User> customers = userRepository.findAll(PageRequest.of(offset, pageSize))
+                .stream()
+                .filter(x -> x.getRole().equals(User.Role.CUSTOMER))
+                .collect(Collectors.toList());
+
+        return customers;
+    }
+
+
+
+
+
+
+    @Override
+    public List<User> findAllCustomersByName(String name) {
+
+        List<User> customersByName = userRepository.findByName(name)
+                .stream()
+                .filter(x -> x.getRole().equals(User.Role.CUSTOMER))
+                .collect(Collectors.toList());
+
+        return customersByName;
+    }
+
+
+
+
+
+
+    @Override
+    public List<User> findAllCustomersBySurname(String surname) {
+
+        List<User> customersBySurname = userRepository.findBySurname(surname)
+                .stream()
+                .filter(x -> x.getRole().equals(User.Role.CUSTOMER))
+                .collect(Collectors.toList());
+
+        return customersBySurname;
+    }
+
+
+
+
+
+
+    @Override
+    public List<User> findAllCustomersByBirthDate(Date birthDate) {
+
+        List<User> customersByDate = userRepository.findByBirthDate(birthDate)
+                .stream()
+                .filter(x -> x.getRole().equals(User.Role.CUSTOMER))
+                .collect(Collectors.toList());
+
+        return customersByDate;
+    }
+
+
+
+
+
+
+    @Override
+    public User findCustomerByEmail(String email) {
+
+        User customerByEmail = userRepository.findByEmail(email);
+
+        if(customerByEmail.getRole().equals(User.Role.CUSTOMER)){
+            return customerByEmail;
+        }
+
+        return null;
+    }
+
+
+
+
+
+    @Override
+    public User findCustomerByCf(String cf) {
+
+        User customerByEmail = userRepository.findByCf(cf);
+
+        if(customerByEmail.getRole().equals(User.Role.CUSTOMER)){
+            return customerByEmail;
+        }
+
+        return null;
+
+    }
+
+
 
 }

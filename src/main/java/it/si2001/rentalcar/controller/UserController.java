@@ -15,6 +15,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 @RestController
@@ -188,16 +191,119 @@ public class UserController {
 
 
 
-    @GetMapping(value = "/sortBy", produces = "application/json")
+
+
+    @GetMapping(value = "/customers/paging/sortBy", produces = "application/json")
     public ResponseEntity<?> getSortedListByOrderTypesAtSomePage(@RequestParam("_page") int page,
+                                                                 @RequestParam("_limit") int pageSize,
                                                                  @RequestParam("_sort") List<String> fields,
                                                                  @RequestParam("_order") List<String> order){
 
         // the page get from input minus 1 because it is the offset so the page start from 0 and not from 1 differently from the front-end when you are requesting the exact page
-        // the pageSize is 10 but it can change based on the use
-        Page<User> usersSorted = userService.getPagingUsersMultipleSortOrder(--page, 10, order, fields);
+        Page<User> usersSorted = userService.getPagingUsersMultipleSortOrder(--page, pageSize, order, fields);
 
         return new ResponseEntity<>(usersSorted.getContent(), HttpStatus.OK);
+
+    }
+
+
+
+    @GetMapping(value = "/customers", produces = "application/json")
+    public ResponseEntity<?> getCustomers(){
+
+        logger.info("***** Fetch all the Customers *****");
+
+        return new ResponseEntity<>(userService.findAllCustomer(), HttpStatus.OK);
+
+    }
+
+
+
+
+    @GetMapping(value = "/customers/paging", produces = "application/json")
+    public ResponseEntity<?> getCustomersAtPageX(@RequestParam("_page") int page, @RequestParam("_limit") int pageSize){
+
+        logger.info("***** Fetch "+pageSize+" Customers from page "+page+" *****");
+
+        // the page get from input minus 1 because it is the offset so the page start from 0 and not from 1 differently from the front-end when you are requesting the exact page
+        return new ResponseEntity<>(userService.findAllCustomersWithPaging(--page, pageSize), HttpStatus.OK);
+
+    }
+
+
+
+
+    @GetMapping(value = "/customers/search", produces = "application/json")
+    public ResponseEntity<?> getCustomerSearch(@RequestParam("field") String field, @RequestParam("value") String value){
+
+        logger.info("***** Fetch Customers that have "+field+" = "+value+" *****");
+
+        switch (field){
+            case "id":
+
+                User user;
+
+                try{
+
+                    logger.info("***** Fetch the user with id "+value+" *****");
+
+                    user = userService.getUserById(Long.parseLong(value));
+
+                }catch (ResourceNotFoundException e){
+
+                    logger.info("***** Fetch the user with id "+value+" not found *****");
+
+                    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+                }
+
+                if(user == null){
+
+                    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+                }
+
+                return new ResponseEntity<>(user, HttpStatus.OK);
+
+            case "name":
+
+                return new ResponseEntity<>(userService.findAllCustomersByName(value), HttpStatus.OK);
+
+            case "surname":
+
+                return new ResponseEntity<>(userService.findAllCustomersBySurname(value), HttpStatus.OK);
+
+            case "cf":
+
+                return new ResponseEntity<>(userService.findCustomerByCf(value), HttpStatus.OK);
+
+            case "email":
+
+                return new ResponseEntity<>(userService.findCustomerByEmail(value), HttpStatus.OK);
+
+            case "birthDate":
+
+                List<User> customersByBirthDate;
+
+                try {
+
+                    customersByBirthDate = userService.findAllCustomersByBirthDate(new SimpleDateFormat("yyyy-MM-dd").parse(value));
+
+                }catch (ParseException e){
+
+                    logger.info("***** Date format not valid *****");
+
+                    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+                }
+
+                return new ResponseEntity<>(customersByBirthDate, HttpStatus.OK);
+
+            default:
+
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+        }
 
     }
 
