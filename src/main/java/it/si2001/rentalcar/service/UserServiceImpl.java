@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -172,25 +174,8 @@ public class UserServiceImpl implements UserService{
     @Override
     public Page<User> getPagingUsersMultipleSortOrder(int offset, int pageSize, List<String> order, List<String> fields) {
 
-        // will contains a list of objects of the form (asc|desc)
-        List<Sort.Direction> directions = new ArrayList<>();
-
-        for(String s : order){
-            if(s.equals("asc")){
-                directions.add(Sort.Direction.ASC);
-            }
-            else if(s.equals("desc")){
-                directions.add(Sort.Direction.DESC);
-            }
-        }
-
-        // will contains a list og objects of {(asc|desc), field1}, {(asc|desc), field2}, {(asc|desc), field3}, ...
-        List<Sort.Order> sortOrders = new ArrayList<>();
-
-        IntStream.range(0, order.size())
-                        .forEach(index -> sortOrders.add(new Sort.Order(directions.get(index), fields.get(index))));
-
-
+        // will contain a list og objects of {(asc|desc), field1}, {(asc|desc), field2}, {(asc|desc), field3}, ...
+        List<Sort.Order> sortOrders = getListSortOrders(order, fields);
 
         return userRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(sortOrders)));
     }
@@ -304,6 +289,294 @@ public class UserServiceImpl implements UserService{
 
     }
 
+
+
+
+
+    /**
+     * Search a field from a certain value and in a certain page
+     * @param field
+     * @param value
+     * @param offset
+     * @param pageSize
+     * @return
+     */
+    @Override
+    public List<User> searchInCustomers(String field, String value, int offset, int pageSize) throws ParseException {
+
+        List<User> results = new ArrayList<>();
+
+        User u;
+
+        switch(field){
+
+            case "id":
+
+                u = userRepository.findByIdUser(Long.parseLong(value));
+
+                if(u == null){
+                    throw new ResourceNotFoundException("User", "id", value);
+                }
+
+                else if(!u.getRole().equals(User.Role.CUSTOMER)){
+                    throw new ResourceNotFoundException("User", "id", value);
+                }
+
+                results.add(u);
+
+                return results;
+
+            case "name":
+
+                results = userRepository.findByRole(User.Role.CUSTOMER)
+                        .stream()
+                        .filter(x -> x.getName().equals(value))
+                        .skip((long) offset * pageSize)
+                        .limit(pageSize)
+                        .collect(Collectors.toList());
+
+                if(results.size() != 0){
+                    return results;
+                }
+
+                throw  new ResourceNotFoundException("User", "name", value);
+
+            case "surname":
+
+                results = userRepository.findByRole(User.Role.CUSTOMER)
+                        .stream()
+                        .filter(x -> x.getSurname().equals(value))
+                        .skip((long) offset * pageSize)
+                        .limit(pageSize)
+                        .collect(Collectors.toList());
+
+                if(results.size() != 0){
+                    return results;
+                }
+
+                throw  new ResourceNotFoundException("User", "surname", value);
+
+            case "cf":
+
+                u = userRepository.findByCf(value);
+
+                if(u == null){
+                    throw new ResourceNotFoundException("User", "cf", value);
+                }
+
+                else if(!u.getRole().equals(User.Role.CUSTOMER)){
+                    throw new ResourceNotFoundException("User", "id", value);
+                }
+
+                results.add(u);
+
+                return results;
+
+            case "email":
+
+                u = userRepository.findByEmail(value);
+
+                if(u == null){
+                    throw new ResourceNotFoundException("User", "email", value);
+                }
+
+                else if(!u.getRole().equals(User.Role.CUSTOMER)){
+                    throw new ResourceNotFoundException("User", "id", value);
+                }
+
+                results.add(u);
+
+                return results;
+
+            case "birthDate":
+
+                Date d = new SimpleDateFormat("yyyy-MM-dd").parse(value);
+
+                results = userRepository.findByRole(User.Role.CUSTOMER)
+                        .stream()
+                        .filter(x -> x.getBirthDate().equals(d))
+                        .skip((long) offset * pageSize)
+                        .limit(pageSize)
+                        .collect(Collectors.toList());
+
+                if(results.size() != 0){
+                    return results;
+                }
+
+                throw  new ResourceNotFoundException("User", "birthDate", value);
+
+            default:
+
+                return results;
+
+        }
+
+    }
+
+    @Override
+    public List<User> searchInCustomersBySort(String field, String value, int offset, int pageSize, List<String> order, List<String> fields) throws ParseException {
+
+        List<User> results = new ArrayList<>();
+
+        List<Sort.Order> sortOrders = getListSortOrders(order, fields);
+
+        User u;
+
+        switch(field){
+
+            case "id":
+
+                u = userRepository.findByIdUser(Long.parseLong(value));
+
+                if(u == null){
+                    throw new ResourceNotFoundException("User", "id", value);
+                }
+
+                else if(!u.getRole().equals(User.Role.CUSTOMER)){
+                    throw new ResourceNotFoundException("User", "id", value);
+                }
+
+                results.add(u);
+
+                return results;
+
+            case "name":
+
+                results = userRepository.findAll(Sort.by(sortOrders))
+                        .stream()
+                        .filter(x -> x.getName().equals(value) && x.getRole().equals(User.Role.CUSTOMER))
+                        .skip((long) offset * pageSize)
+                        .limit(pageSize)
+                        .collect(Collectors.toList());
+
+                if(results.size() != 0){
+                    return results;
+                }
+
+                throw  new ResourceNotFoundException("User", "name", value);
+
+            case "surname":
+
+                results = userRepository.findAll(Sort.by(sortOrders))
+                        .stream()
+                        .filter(x -> x.getSurname().equals(value) && x.getRole().equals(User.Role.CUSTOMER))
+                        .skip((long) offset * pageSize)
+                        .limit(pageSize)
+                        .collect(Collectors.toList());
+
+                if(results.size() != 0){
+                    return results;
+                }
+
+                throw  new ResourceNotFoundException("User", "surname", value);
+
+            case "cf":
+
+                u = userRepository.findByCf(value);
+
+                if(u == null){
+                    throw new ResourceNotFoundException("User", "cf", value);
+                }
+
+                else if(!u.getRole().equals(User.Role.CUSTOMER)){
+                    throw new ResourceNotFoundException("User", "id", value);
+                }
+
+                results.add(u);
+
+                return results;
+
+            case "email":
+
+                u = userRepository.findByEmail(value);
+
+                if(u == null){
+                    throw new ResourceNotFoundException("User", "email", value);
+                }
+
+                else if(!u.getRole().equals(User.Role.CUSTOMER)){
+                    throw new ResourceNotFoundException("User", "id", value);
+                }
+
+                results.add(u);
+
+                return results;
+
+            case "birthDate":
+
+                Date d = new SimpleDateFormat("yyyy-MM-dd").parse(value);
+
+                results = userRepository.findAll(Sort.by(sortOrders))
+                        .stream()
+                        .filter(x -> x.getBirthDate().equals(d) && x.getRole().equals(User.Role.CUSTOMER))
+                        .skip((long) offset * pageSize)
+                        .limit(pageSize)
+                        .collect(Collectors.toList());
+
+                if(results.size() != 0){
+                    return results;
+                }
+
+                throw  new ResourceNotFoundException("User", "birthDate", value);
+
+            default:
+
+                return results;
+
+        }
+
+    }
+
+
+
+
+
+    @Override
+    public User getUserByEmail(String email) {
+
+        User u = userRepository.findByEmail(email);
+
+        if(u == null){
+
+            throw new ResourceNotFoundException("User", "email", email);
+
+        }
+
+        return u;
+
+    }
+
+
+    /**
+     * From URL ?_sort=field1, field2, ..., fieldN&_order=asc,desc,...,asc
+     * To ---> List<String> , List<Sort.Direction>
+     * @param order
+     * @param fields
+     * @return
+     */
+    public List<Sort.Order> getListSortOrders(List<String> order, List<String> fields) {
+
+        // will contain a list of objects of the form (asc|desc)
+        List<Sort.Direction> directions = new ArrayList<>();
+
+        for(String s : order){
+            if(s.equals("asc")){
+                directions.add(Sort.Direction.ASC);
+            }
+            else if(s.equals("desc")){
+                directions.add(Sort.Direction.DESC);
+            }
+        }
+
+        // will contain a list og objects of {(asc|desc), field1}, {(asc|desc), field2}, {(asc|desc), field3}, ...
+        List<Sort.Order> sortOrders = new ArrayList<>();
+
+        IntStream.range(0, order.size())
+                .forEach(index -> sortOrders.add(new Sort.Order(directions.get(index), fields.get(index))));
+
+        return sortOrders;
+
+    }
 
 
 }

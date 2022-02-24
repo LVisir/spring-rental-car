@@ -15,13 +15,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 @RestController
-@RequestMapping("/user")
+@CrossOrigin
+@RequestMapping("/users")
 public class UserController {
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
@@ -208,12 +209,86 @@ public class UserController {
 
 
 
+
+
     @GetMapping(value = "/customers", produces = "application/json")
     public ResponseEntity<?> getCustomers(){
 
         logger.info("***** Fetch all the Customers *****");
 
         return new ResponseEntity<>(userService.findAllCustomer(), HttpStatus.OK);
+
+    }
+
+
+
+
+
+    @GetMapping(value = "/customers/id/{id}", produces = "application/json")
+    public ResponseEntity<?> getCustomer(@PathVariable("id") Long id){
+
+        User u = userService.getUserById(id);
+
+        if(u != null){
+            if(u.getRole().equals(User.Role.CUSTOMER)){
+                return new ResponseEntity<>(u, HttpStatus.OK);
+            }
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+    }
+
+
+
+
+
+    @GetMapping(value = "/customers/email/{email}", produces = "application/json")
+    public ResponseEntity<?> getCustomerByEmail(@PathVariable("email") String email){
+
+        logger.info("***** Fetch User with email "+email+" *****");
+
+        User u = userService.findCustomerByEmail(email);
+
+        if(u != null){
+
+            return new ResponseEntity<>(u, HttpStatus.OK);
+
+        }
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+    }
+
+    @GetMapping(value = "/email/{email}", produces = "application/json")
+    public ResponseEntity<?> getUserByEmail(@PathVariable("email") String email){
+
+        User u = null;
+
+        HttpHeaders headers = new HttpHeaders();
+
+        headers.setContentType(MediaType.APPLICATION_JSON); // converts into JSON type
+
+        try{
+
+            logger.info("***** Fetch User with email "+email+" *****");
+
+            u = userService.getUserByEmail(email);
+
+        }catch (ResourceNotFoundException e){
+
+            logger.info("***** "+e.getMessage()+" *****");
+
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+        }catch (Exception e){
+
+            userService.manageExceptions(e, logger, responseNode, headers);
+
+        }
+
+        return new ResponseEntity<>(u, HttpStatus.OK);
 
     }
 
@@ -233,77 +308,91 @@ public class UserController {
 
 
 
+
     @GetMapping(value = "/customers/search", produces = "application/json")
-    public ResponseEntity<?> getCustomerSearch(@RequestParam("field") String field, @RequestParam("value") String value){
+    public ResponseEntity<?> searchWithPaging(@RequestParam("field") String field, @RequestParam("value") String value, @RequestParam("_page") int page, @RequestParam("_limit") int pageSize){
 
-        logger.info("***** Fetch Customers that have "+field+" = "+value+" *****");
+        List<User> results = new ArrayList<>();
 
-        switch (field){
-            case "id":
+        HttpHeaders headers = new HttpHeaders();
 
-                User user;
+        headers.setContentType(MediaType.APPLICATION_JSON); // converts into JSON type
 
-                try{
+        try{
 
-                    logger.info("***** Fetch the user with id "+value+" *****");
+            logger.info("***** Fetch Customers that have "+field+" = "+value+" *****");
 
-                    user = userService.getUserById(Long.parseLong(value));
+            results = userService.searchInCustomers(field, value, --page, pageSize);
 
-                }catch (ResourceNotFoundException e){
+        }catch (ParseException e){
 
-                    logger.info("***** Fetch the user with id "+value+" not found *****");
+            logger.info("***** Date format not valid *****");
 
-                    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
-                }
+        }catch (ResourceNotFoundException e){
 
-                if(user == null){
+            logger.info("***** error : "+e.getMessage()+" *****");
 
-                    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
-                }
-
-                return new ResponseEntity<>(user, HttpStatus.OK);
-
-            case "name":
-
-                return new ResponseEntity<>(userService.findAllCustomersByName(value), HttpStatus.OK);
-
-            case "surname":
-
-                return new ResponseEntity<>(userService.findAllCustomersBySurname(value), HttpStatus.OK);
-
-            case "cf":
-
-                return new ResponseEntity<>(userService.findCustomerByCf(value), HttpStatus.OK);
-
-            case "email":
-
-                return new ResponseEntity<>(userService.findCustomerByEmail(value), HttpStatus.OK);
-
-            case "birthDate":
-
-                List<User> customersByBirthDate;
-
-                try {
-
-                    customersByBirthDate = userService.findAllCustomersByBirthDate(new SimpleDateFormat("yyyy-MM-dd").parse(value));
-
-                }catch (ParseException e){
-
-                    logger.info("***** Date format not valid *****");
-
-                    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
-                }
-
-                return new ResponseEntity<>(customersByBirthDate, HttpStatus.OK);
-
-            default:
-
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
         }
+        catch (Exception e){
+
+            userService.manageExceptions(e, logger, responseNode, headers);
+
+        }
+
+        return new ResponseEntity<>(results, HttpStatus.OK);
+
+    }
+
+
+
+
+    @GetMapping(value = "/customers/search/sort", produces = "application/json")
+    public ResponseEntity<?> searchWithPagingAndSorting(@RequestParam("field") String field, @RequestParam("value") String value,
+                                                        @RequestParam("_page") int page, @RequestParam("_limit") int pageSize,
+                                                        @RequestParam("_sort") List<String> fields, @RequestParam("_order") List<String> order){
+
+        List<User> results = new ArrayList<>();
+
+        HttpHeaders headers = new HttpHeaders();
+
+        headers.setContentType(MediaType.APPLICATION_JSON); // converts into JSON type
+
+        try{
+
+            StringBuilder fieldsForLogger = new StringBuilder();
+            StringBuilder orderForLogger = new StringBuilder();
+
+            for(String x : fields) fieldsForLogger.append(" ").append(x);
+            for(String x : order) orderForLogger.append(" ").append(x);
+
+            logger.info("***** Fetch Customers that have "+field+" = "+value+" at page "+page+" with order fields+"+fieldsForLogger+" and order type"+orderForLogger+" *****");
+
+            results = userService.searchInCustomersBySort(field, value, --page, pageSize, order, fields);
+
+        }catch (ParseException e){
+
+            logger.info("***** Date format not valid *****");
+
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+        }catch (ResourceNotFoundException e){
+
+            logger.info("***** error : "+e.getMessage()+" *****");
+
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+        }
+        catch (Exception e){
+
+            userService.manageExceptions(e, logger, responseNode, headers);
+
+        }
+
+        return new ResponseEntity<>(results, HttpStatus.OK);
 
     }
 
