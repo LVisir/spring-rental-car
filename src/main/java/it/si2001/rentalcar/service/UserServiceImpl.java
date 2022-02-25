@@ -121,6 +121,74 @@ public class UserServiceImpl implements UserService{
 
 
 
+    @Override
+    public void insertCustomer(User u) {
+
+        Optional<User> user = userRepository.findAll()
+                .stream()
+                .filter(x -> x.getEmail().equals(u.getEmail()) || x.getCf().equals(u.getCf()))
+                .findFirst();
+
+        if(user.isPresent()){
+
+            throw new ResourceAlreadyExistingException("User", "email", u.getEmail());
+
+        }
+
+        u.setRole(User.Role.CUSTOMER);
+
+        userRepository.saveAndFlush(u);
+
+    }
+
+
+
+
+
+    @Override
+    public void updateCustomer(User u, Long id) {
+
+        User existingUser = userRepository.findByIdUser(id);
+
+        if(existingUser == null || existingUser.getRole().equals(User.Role.SUPERUSER)){
+            throw new ResourceNotFoundException("User", "id", id);
+        }
+
+        existingUser.setIdUser(u.getIdUser());
+        existingUser.setName(u.getName());
+        existingUser.setSurname(u.getSurname());
+        existingUser.setBirthDate(u.getBirthDate());
+        existingUser.setEmail(u.getEmail());
+        existingUser.setPassword(u.getPassword());
+        existingUser.setRole(User.Role.CUSTOMER);
+        existingUser.setCf(u.getCf());
+
+        userRepository.saveAndFlush(existingUser);
+
+    }
+
+
+
+
+
+    @Override
+    public void deleteCustomer(User u) {
+
+        User user = userRepository.findByIdUser(u.getIdUser());
+
+        if(user == null || user.getRole().equals(User.Role.SUPERUSER)){
+
+            throw new ResourceNotFoundException("User", "id", u.getIdUser());
+
+        }
+
+        userRepository.delete(u);
+
+    }
+
+
+
+
 
     @Override
     public ResponseEntity<ObjectNode> manageExceptions(Exception e, Logger logger, ObjectNode responseNode, HttpHeaders headers) {
@@ -199,9 +267,11 @@ public class UserServiceImpl implements UserService{
     @Override
     public List<User> findAllCustomersWithPaging(int offset, int pageSize) {
 
-        List<User> customers = userRepository.findAll(PageRequest.of(offset, pageSize))
+        List<User> customers = userRepository.findAll()
                 .stream()
                 .filter(x -> x.getRole().equals(User.Role.CUSTOMER))
+                .skip((long) offset * pageSize)
+                .limit(pageSize)
                 .collect(Collectors.toList());
 
         return customers;
@@ -310,7 +380,7 @@ public class UserServiceImpl implements UserService{
 
         switch(field){
 
-            case "id":
+            case "idUser":
 
                 u = userRepository.findByIdUser(Long.parseLong(value));
 
@@ -424,7 +494,7 @@ public class UserServiceImpl implements UserService{
 
         switch(field){
 
-            case "id":
+            case "idUser":
 
                 u = userRepository.findByIdUser(Long.parseLong(value));
 

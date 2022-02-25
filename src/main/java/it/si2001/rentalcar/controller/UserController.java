@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.IntStream;
 
 @RestController
 @CrossOrigin
@@ -40,6 +39,7 @@ public class UserController {
 
     @GetMapping(produces = "application/json")
     public ResponseEntity<List<User>> listAllUsers(){
+
         logger.info("***** Fetch users *****");
 
         List<User> users = userService.getAllUsers();
@@ -124,6 +124,40 @@ public class UserController {
 
 
 
+    @PostMapping(value = "/customers/add")
+    public ResponseEntity<ObjectNode> insertCustomer(@RequestBody User u){    // @RequestBody it takes a JSON format
+
+        HttpHeaders headers = new HttpHeaders();
+
+        headers.setContentType(MediaType.APPLICATION_JSON); // converts body into JSON type
+
+        try{
+
+            logger.info("***** Insert customer *****");
+
+            logger.info(u.getName()+" "+u.getSurname()+" "+u.getCf()+" "+u.getRole()+" "+u.getPassword()+" "+u.getEmail()+" "+u.getBirthDate());
+
+            userService.insertCustomer(u);
+
+        }catch (ResourceAlreadyExistingException e){
+
+            logger.info("***** "+e.getMessage()+" *****");
+
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+        }catch (Exception e){
+
+            return userService.manageExceptions(e, logger, responseNode, headers);
+
+        }
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
+
+    }
+
+
+
+
 
     @DeleteMapping(value = "/deleteUser/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable("id") Long id){
@@ -140,6 +174,8 @@ public class UserController {
 
             u = userService.getUserById(id);
 
+            userService.deleteUser(u);
+
         }catch (ResourceNotFoundException e){
 
             logger.warn("***** "+e.getMessage()+" *****");
@@ -152,7 +188,40 @@ public class UserController {
 
         }
 
-        userService.deleteUser(u);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+
+
+
+    @DeleteMapping(value = "/customers/delete/{id}")
+    public ResponseEntity<?> deleteCustomer(@PathVariable("id") Long id){
+
+        HttpHeaders headers = new HttpHeaders();
+
+        headers.setContentType(MediaType.APPLICATION_JSON); // converts into JSON type
+
+        User u;
+
+        try{
+
+            logger.info("***** Delete Customer *****");
+
+            u = userService.getUserById(id);
+
+            userService.deleteCustomer(u);
+
+        }catch (ResourceNotFoundException e){
+
+            logger.warn("***** "+e.getMessage()+" *****");
+
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+        }catch (Exception e){
+
+            return userService.manageExceptions(e, logger, responseNode, headers);
+
+        }
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -193,12 +262,53 @@ public class UserController {
 
 
 
+    @PutMapping(value = "/customers/update/{id}")
+    public ResponseEntity<?> updateCustomer(@RequestBody User u, @PathVariable("id") Long id){
+
+        HttpHeaders headers = new HttpHeaders();
+
+        headers.setContentType(MediaType.APPLICATION_JSON); // converts into JSON type
+
+        try{
+
+            logger.info("***** Modify customer *****");
+
+            userService.updateCustomer(u, id);
+
+        }catch (ResourceNotFoundException e){
+
+            logger.info("***** "+e.getMessage()+" *****");
+
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+        }catch (Exception e){
+
+            return userService.manageExceptions(e, logger, responseNode, headers);
+
+        }
+
+        return new ResponseEntity<>(u, HttpStatus.OK);
+
+    }
+
+
+
+
 
     @GetMapping(value = "/customers/paging/sortBy", produces = "application/json")
     public ResponseEntity<?> getSortedListByOrderTypesAtSomePage(@RequestParam("_page") int page,
                                                                  @RequestParam("_limit") int pageSize,
                                                                  @RequestParam("_sort") List<String> fields,
                                                                  @RequestParam("_order") List<String> order){
+
+
+        StringBuilder fieldsForLogger = new StringBuilder();
+        StringBuilder orderForLogger = new StringBuilder();
+
+        for(String x : fields) fieldsForLogger.append(" ").append(x);
+        for(String x : order) orderForLogger.append(" ").append(x);
+
+        logger.info("***** Fetch Customers at page "+page+" sort by"+fieldsForLogger+" with order type"+orderForLogger+" *****");
 
         // the page get from input minus 1 because it is the offset so the page start from 0 and not from 1 differently from the front-end when you are requesting the exact page
         Page<User> usersSorted = userService.getPagingUsersMultipleSortOrder(--page, pageSize, order, fields);
@@ -226,6 +336,8 @@ public class UserController {
 
     @GetMapping(value = "/customers/id/{id}", produces = "application/json")
     public ResponseEntity<?> getCustomer(@PathVariable("id") Long id){
+
+        logger.info("***** Update User with id "+id+" *****");
 
         User u = userService.getUserById(id);
 
@@ -369,7 +481,7 @@ public class UserController {
             for(String x : fields) fieldsForLogger.append(" ").append(x);
             for(String x : order) orderForLogger.append(" ").append(x);
 
-            logger.info("***** Fetch Customers that have "+field+" = "+value+" at page "+page+" with order fields+"+fieldsForLogger+" and order type"+orderForLogger+" *****");
+            logger.info("***** Fetch Customers that have "+field+" = "+value+" at page "+page+" sort by"+fieldsForLogger+" with order type"+orderForLogger+" *****");
 
             results = userService.searchInCustomersBySort(field, value, --page, pageSize, order, fields);
 

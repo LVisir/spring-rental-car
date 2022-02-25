@@ -24,6 +24,12 @@ public interface UserService {
 
     void updateUser(User u, Long id);
 
+    void insertCustomer(User u);
+
+    void updateCustomer(User u, Long id);
+
+    void deleteCustomer(User u);
+
     ResponseEntity<ObjectNode> manageExceptions(Exception e, Logger logger, ObjectNode responseNode, HttpHeaders headers);
 
     List<User> getUsersSortedBy(String field);
