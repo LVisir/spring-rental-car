@@ -1,7 +1,8 @@
-package it.si2001.rentalcar.service;
+package it.si2001.rentalcar.service.impl;
 
 import it.si2001.rentalcar.entity.Booking;
 import it.si2001.rentalcar.repository.BookingRepository;
+import it.si2001.rentalcar.service.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,7 +11,7 @@ import java.util.List;
 
 @Service
 @Transactional
-public class BookingServiceImpl implements BookingService{
+public class BookingServiceImpl implements BookingService {
 
     @Autowired
     BookingRepository bookingRepository;

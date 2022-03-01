@@ -4,10 +4,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import it.si2001.rentalcar.entity.User;
 import org.slf4j.Logger;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
@@ -18,17 +16,17 @@ public interface UserService {
 
     User getUserById(Long id);
 
-    void insertUser(User u);
+    User insertUser(User u);
 
-    void deleteUser(User u);
+    boolean deleteUser(Long id);
 
-    void updateUser(User u, Long id);
+    User updateUser(User u, Long id);
 
-    void insertCustomer(User u);
+    User insertCustomer(User u);
 
-    void updateCustomer(User u, Long id);
+    User updateCustomer(User u, Long id);
 
-    void deleteCustomer(User u);
+    boolean deleteCustomer(Long id);
 
     ResponseEntity<ObjectNode> manageExceptions(Exception e, Logger logger, ObjectNode responseNode, HttpHeaders headers);
 

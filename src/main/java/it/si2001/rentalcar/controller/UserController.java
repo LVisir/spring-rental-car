@@ -3,7 +3,6 @@ package it.si2001.rentalcar.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import it.si2001.rentalcar.entity.User;
-import it.si2001.rentalcar.exception.ResourceAlreadyExistingException;
 import it.si2001.rentalcar.exception.ResourceNotFoundException;
 import it.si2001.rentalcar.service.UserService;
 import org.slf4j.Logger;
@@ -31,6 +30,7 @@ public class UserController {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
+    // maps to JSON Object structures in JSON content
     private final ObjectNode responseNode = mapper.createObjectNode();
 
 
@@ -38,17 +38,33 @@ public class UserController {
 
 
     @GetMapping(produces = "application/json")
-    public ResponseEntity<List<User>> listAllUsers(){
+    public ResponseEntity<?> listAllUsers(){
 
-        logger.info("***** Fetch users *****");
+        try{
 
-        List<User> users = userService.getAllUsers();
+            logger.info("***** Fetch users *****");
 
-        if(users.isEmpty()){
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);   // null users
+            List<User> users = userService.getAllUsers();
+
+            if(users.isEmpty()){
+
+                logger.error("***** No Users found *****");
+
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+            }
+
+            return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(users);
+
+        }
+        catch (Exception e) {
+
+            logger.error("Users: Exception thrown: {}", e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
+
         }
 
-        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
 
@@ -58,31 +74,30 @@ public class UserController {
     @GetMapping(value = "/{id}", produces = "application/json")
     public ResponseEntity<?> getUser(@PathVariable("id") Long id) {
 
-        User u;
-
-        HttpHeaders headers = new HttpHeaders();
-
-        headers.setContentType(MediaType.APPLICATION_JSON); // converts body into JSON type
-
         try{
 
             logger.info("***** Fetch the user with id "+id+" *****");
 
-            u = userService.getUserById(id);
+            User u = userService.getUserById(id);
 
-        }catch (ResourceNotFoundException e){
+            if(u == null){
 
-            logger.info("***** Fetch the user with id "+id+" not found *****");
+                logger.error("The user with id "+id+" doesn't exists");
 
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The user with id "+id+" doesn't exists");
 
-        }catch (Exception e){
+            }
 
-            return userService.manageExceptions(e, logger, responseNode, headers);
+            return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(u);
 
         }
+        catch (Exception e) {
 
-        return new ResponseEntity<>(u, HttpStatus.OK);
+            logger.error("Users: Exception thrown: {}", e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
+
+        }
 
     }
 
@@ -91,33 +106,34 @@ public class UserController {
 
 
     @PostMapping(value = "/addUser")
-    public ResponseEntity<ObjectNode> insertUser(@RequestBody User u){    // @RequestBody it takes a JSON format
-
-        HttpHeaders headers = new HttpHeaders();
-
-        headers.setContentType(MediaType.APPLICATION_JSON); // converts body into JSON type
+    public ResponseEntity<?> insertUser(@RequestBody User u){    // @RequestBody it takes a JSON format
 
         try{
 
             logger.info("***** Insert user *****");
 
-            logger.info(u.getIdUser()+" "+u.getName()+" "+u.getSurname()+" "+u.getCf()+" "+u.getRole()+" "+u.getPassword()+" "+u.getEmail()+" "+u.getBirthDate());
+            logger.info(u.getName()+" "+u.getSurname()+" "+u.getCf()+" "+u.getRole()+" "+u.getPassword()+" "+u.getEmail()+" "+u.getBirthDate());
 
-            userService.insertUser(u);
+            User userInserted = userService.insertUser(u);
 
-        }catch (ResourceAlreadyExistingException e){
+            if(userInserted == null){
 
-            logger.info("***** "+e.getMessage()+" *****");
+                logger.error("***** User already existing *****");
 
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User already existing");
 
-        }catch (Exception e){
+            }
 
-            return userService.manageExceptions(e, logger, responseNode, headers);
+            return new ResponseEntity<>(userInserted, HttpStatus.CREATED);
 
         }
+        catch (Exception e) {
 
-        return new ResponseEntity<>(HttpStatus.CREATED);
+            logger.error("Users: Exception thrown: {}", e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
+
+        }
 
     }
 
@@ -125,11 +141,7 @@ public class UserController {
 
 
     @PostMapping(value = "/customers/add")
-    public ResponseEntity<ObjectNode> insertCustomer(@RequestBody User u){    // @RequestBody it takes a JSON format
-
-        HttpHeaders headers = new HttpHeaders();
-
-        headers.setContentType(MediaType.APPLICATION_JSON); // converts body into JSON type
+    public ResponseEntity<?> insertCustomer(@RequestBody User u){    // @RequestBody it takes a JSON format
 
         try{
 
@@ -137,21 +149,26 @@ public class UserController {
 
             logger.info(u.getName()+" "+u.getSurname()+" "+u.getCf()+" "+u.getRole()+" "+u.getPassword()+" "+u.getEmail()+" "+u.getBirthDate());
 
-            userService.insertCustomer(u);
+            User customer = userService.insertCustomer(u);
 
-        }catch (ResourceAlreadyExistingException e){
+            if(customer == null){
 
-            logger.info("***** "+e.getMessage()+" *****");
+                logger.error("***** Customer already existing *****");
 
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Customer already existing");
 
-        }catch (Exception e){
+            }
 
-            return userService.manageExceptions(e, logger, responseNode, headers);
+            return new ResponseEntity<>(customer, HttpStatus.CREATED);
 
         }
+        catch (Exception e) {
 
-        return new ResponseEntity<>(HttpStatus.CREATED);
+            logger.error("Users: Exception thrown: {}", e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
+
+        }
 
     }
 
@@ -162,33 +179,29 @@ public class UserController {
     @DeleteMapping(value = "/deleteUser/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable("id") Long id){
 
-        HttpHeaders headers = new HttpHeaders();
-
-        headers.setContentType(MediaType.APPLICATION_JSON); // converts into JSON type
-
-        User u;
-
         try{
 
             logger.info("***** Delete User *****");
 
-            u = userService.getUserById(id);
+            if(!userService.deleteUser(id)){
 
-            userService.deleteUser(u);
+                logger.error("***** Try to delete a not existing User *****");
 
-        }catch (ResourceNotFoundException e){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Try to delete a not existing User");
 
-            logger.warn("***** "+e.getMessage()+" *****");
+            }
 
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(HttpStatus.OK);
 
-        }catch (Exception e){
+        }
+        catch (Exception e) {
 
-            return userService.manageExceptions(e, logger, responseNode, headers);
+            logger.error("Users: Exception thrown: {}", e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
 
         }
 
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 
@@ -197,33 +210,29 @@ public class UserController {
     @DeleteMapping(value = "/customers/delete/{id}")
     public ResponseEntity<?> deleteCustomer(@PathVariable("id") Long id){
 
-        HttpHeaders headers = new HttpHeaders();
-
-        headers.setContentType(MediaType.APPLICATION_JSON); // converts into JSON type
-
-        User u;
-
         try{
 
             logger.info("***** Delete Customer *****");
 
-            u = userService.getUserById(id);
+            if(!userService.deleteCustomer(id)){
 
-            userService.deleteCustomer(u);
+                logger.error("***** Try to delete a not existing Customer *****");
 
-        }catch (ResourceNotFoundException e){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Try to delete a not existing Customer");
 
-            logger.warn("***** "+e.getMessage()+" *****");
+            }
 
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(HttpStatus.OK);
 
-        }catch (Exception e){
+        }
+        catch (Exception e) {
 
-            return userService.manageExceptions(e, logger, responseNode, headers);
+            logger.error("Users: Exception thrown: {}", e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
 
         }
 
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 
@@ -233,29 +242,30 @@ public class UserController {
     @PutMapping(value = "/update/{id}")
     public ResponseEntity<?> updateUser(@RequestBody User u, @PathVariable("id") Long id){
 
-        HttpHeaders headers = new HttpHeaders();
-
-        headers.setContentType(MediaType.APPLICATION_JSON); // converts into JSON type
-
         try{
 
             logger.info("***** Modify user *****");
 
-            userService.updateUser(u, id);
+            User userUpdated = userService.updateUser(u, id);
 
-        }catch (ResourceNotFoundException e){
+            if(userUpdated == null){
 
-            logger.info("***** "+e.getMessage()+" *****");
+                logger.error("***** The User you are trying to update doesn't exists *****");
 
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The User you are trying to update doesn't exists");
 
-        }catch (Exception e){
+            }
 
-            return userService.manageExceptions(e, logger, responseNode, headers);
+            return new ResponseEntity<>(userUpdated, HttpStatus.OK);
 
         }
+        catch (Exception e) {
 
-        return new ResponseEntity<>(u, HttpStatus.OK);
+            logger.error("Users: Exception thrown: {}", e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
+
+        }
 
     }
 
@@ -265,29 +275,30 @@ public class UserController {
     @PutMapping(value = "/customers/update/{id}")
     public ResponseEntity<?> updateCustomer(@RequestBody User u, @PathVariable("id") Long id){
 
-        HttpHeaders headers = new HttpHeaders();
-
-        headers.setContentType(MediaType.APPLICATION_JSON); // converts into JSON type
-
         try{
 
             logger.info("***** Modify customer *****");
 
-            userService.updateCustomer(u, id);
+            User customerUpdated = userService.updateCustomer(u, id);
 
-        }catch (ResourceNotFoundException e){
+            if(customerUpdated == null){
 
-            logger.info("***** "+e.getMessage()+" *****");
+                logger.error("***** The Customer you are trying to update doesn't exists *****");
 
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The Customer you are trying to update doesn't exists");
 
-        }catch (Exception e){
+            }
 
-            return userService.manageExceptions(e, logger, responseNode, headers);
+            return new ResponseEntity<>(customerUpdated, HttpStatus.OK);
 
         }
+        catch (Exception e) {
 
-        return new ResponseEntity<>(u, HttpStatus.OK);
+            logger.error("Users: Exception thrown: {}", e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
+
+        }
 
     }
 
@@ -324,9 +335,30 @@ public class UserController {
     @GetMapping(value = "/customers", produces = "application/json")
     public ResponseEntity<?> getCustomers(){
 
-        logger.info("***** Fetch all the Customers *****");
+        try{
 
-        return new ResponseEntity<>(userService.findAllCustomer(), HttpStatus.OK);
+            logger.info("***** Fetch all the Customers *****");
+
+            List<User> customers = userService.findAllCustomer();
+
+            if(customers == null){
+
+                logger.error("***** No Customers found *****");
+
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No Customers found");
+
+            }
+
+            return new ResponseEntity<>(customers, HttpStatus.OK);
+
+        }
+        catch (Exception e){
+
+            logger.error("Users: Exception thrown: {}", e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
+
+        }
 
     }
 
@@ -337,18 +369,34 @@ public class UserController {
     @GetMapping(value = "/customers/id/{id}", produces = "application/json")
     public ResponseEntity<?> getCustomer(@PathVariable("id") Long id){
 
-        logger.info("***** Update User with id "+id+" *****");
+        try{
 
-        User u = userService.getUserById(id);
+            logger.info("***** Get customer with id " + id + " *****");
 
-        if(u != null){
-            if(u.getRole().equals(User.Role.CUSTOMER)){
-                return new ResponseEntity<>(u, HttpStatus.OK);
+            User u = userService.getUserById(id);
+
+            if (u != null) {
+
+                if (u.getRole().equals(User.Role.CUSTOMER)) {
+
+                    return new ResponseEntity<>(u, HttpStatus.OK);
+
+                }
+
             }
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
 
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            logger.error("***** Customer not found *****");
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Customer not found");
+
+        }
+        catch (Exception e){
+
+            logger.error("Users: Exception thrown: {}", e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
+
+        }
 
     }
 
@@ -359,48 +407,60 @@ public class UserController {
     @GetMapping(value = "/customers/email/{email}", produces = "application/json")
     public ResponseEntity<?> getCustomerByEmail(@PathVariable("email") String email){
 
-        logger.info("***** Fetch User with email "+email+" *****");
+        try{
 
-        User u = userService.findCustomerByEmail(email);
+            logger.info("***** Fetch User with email " + email + " *****");
 
-        if(u != null){
+            User u = userService.findCustomerByEmail(email);
 
-            return new ResponseEntity<>(u, HttpStatus.OK);
+            if (u != null) {
+
+                return new ResponseEntity<>(u, HttpStatus.OK);
+
+            }
+
+            logger.error("***** No Customer found with email "+email+" *****");
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No Customer found with email "+email);
 
         }
+        catch (Exception e){
 
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            logger.error("Users: Exception thrown: {}", e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
+
+        }
 
     }
 
     @GetMapping(value = "/email/{email}", produces = "application/json")
     public ResponseEntity<?> getUserByEmail(@PathVariable("email") String email){
 
-        User u = null;
-
-        HttpHeaders headers = new HttpHeaders();
-
-        headers.setContentType(MediaType.APPLICATION_JSON); // converts into JSON type
-
         try{
 
             logger.info("***** Fetch User with email "+email+" *****");
 
-            u = userService.getUserByEmail(email);
+            User u = userService.getUserByEmail(email);
 
-        }catch (ResourceNotFoundException e){
+            if(u != null){
 
-            logger.info("***** "+e.getMessage()+" *****");
+                return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(u);
 
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
 
-        }catch (Exception e){
+            logger.error("***** User with email "+email+" not found *****");
 
-            userService.manageExceptions(e, logger, responseNode, headers);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User with email "+email+" not found");
 
         }
+        catch (Exception e){
 
-        return new ResponseEntity<>(u, HttpStatus.OK);
+            logger.error("Users: Exception thrown: {}", e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
+
+        }
 
     }
 
