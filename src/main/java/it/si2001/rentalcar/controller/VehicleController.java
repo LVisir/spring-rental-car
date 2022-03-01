@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.SQLException;
 import java.util.List;
 
 @RestController
@@ -167,7 +168,7 @@ public class VehicleController {
 
             if(vehicle == null){
 
-                logger.error("***** Vehicle already existing");
+                logger.error("***** Vehicle already existing *****");
 
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Vehicle already existing");
 

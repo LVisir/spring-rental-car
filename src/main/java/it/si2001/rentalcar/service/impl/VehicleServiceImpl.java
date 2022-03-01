@@ -87,7 +87,7 @@ public class VehicleServiceImpl implements VehicleService {
 
             e.printStackTrace();
 
-            return false;
+            throw e;
 
         }
 
@@ -125,7 +125,7 @@ public class VehicleServiceImpl implements VehicleService {
 
             e.printStackTrace();
 
-            return null;
+            throw e;
 
         }
 
@@ -149,7 +149,7 @@ public class VehicleServiceImpl implements VehicleService {
 
             e.printStackTrace();
 
-            return null;
+            throw e;
 
         }
 
@@ -179,7 +179,7 @@ public class VehicleServiceImpl implements VehicleService {
 
             e.printStackTrace();
 
-            return null;
+            throw e;
 
         }
 
