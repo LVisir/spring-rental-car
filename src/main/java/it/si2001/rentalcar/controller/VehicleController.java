@@ -167,9 +167,9 @@ public class VehicleController {
 
             if(vehicle == null){
 
-                logger.error("***** Vehicle with license plate "+v.getLicensePlate()+" already existing");
+                logger.error("***** Vehicle already existing");
 
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Vehicle with license plate "+v.getLicensePlate()+" already existing");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Vehicle already existing");
 
             }
 

@@ -34,6 +34,18 @@ public class VehicleServiceImpl implements VehicleService {
 
             }
 
+            else if(v.getIdVehicle() != null){
+
+                Optional<Vehicle> vehicleWithId = vehicleRepository.findByIdVehicle(v.getIdVehicle());
+
+                if(vehicleWithId.isPresent()){
+
+                    return null;
+
+                }
+
+            }
+
             vehicleRepository.saveAndFlush(v);
 
             return v;
@@ -43,7 +55,7 @@ public class VehicleServiceImpl implements VehicleService {
 
             e.printStackTrace();
 
-            return null;
+            throw e;
 
         }
 
