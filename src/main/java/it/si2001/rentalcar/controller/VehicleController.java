@@ -1,6 +1,10 @@
 package it.si2001.rentalcar.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import it.si2001.rentalcar.entity.Vehicle;
+import it.si2001.rentalcar.exception.ResourceAlreadyExistingException;
+import it.si2001.rentalcar.exception.ResourceNotFoundException;
 import it.si2001.rentalcar.service.VehicleService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.SQLException;
 import java.util.List;
 
 @RestController
@@ -22,6 +25,15 @@ public class VehicleController {
 
     @Autowired
     private VehicleService vehicleService;
+
+    private final ObjectMapper mapper = new ObjectMapper();
+
+    // maps to JSON Object structures in JSON content
+    private final ObjectNode responseNode = mapper.createObjectNode();
+
+
+
+
 
     @GetMapping(produces = "application/json")
     public ResponseEntity<?> getAllVehicles(){
@@ -36,18 +48,16 @@ public class VehicleController {
 
                 logger.error("***** No vehicles found *****");
 
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No vehicles found");
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
             }
 
-            return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(vehicles);
+            return new ResponseEntity<>(vehicles, HttpStatus.OK);
 
         }
         catch (Exception e) {
 
-            logger.error("Users: Exception thrown: {}", e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
+            return vehicleService.manageExceptions(e, logger, responseNode);
 
         }
 
@@ -66,22 +76,19 @@ public class VehicleController {
 
             Vehicle v = vehicleService.fetchVehicle(id);
 
-            if(v == null){
+            return ResponseEntity.ok().body(v);
 
-                logger.error("***** No Vehicle found with id "+id+" *****");
+        }
+        catch (ResourceNotFoundException e){
 
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No Vehicle found with id "+id);
+            logger.error("***** "+e.getMessage()+" *****");
 
-            }
-
-            return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(v);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
         }
         catch (Exception e) {
 
-            logger.error("Users: Exception thrown: {}", e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
+            return vehicleService.manageExceptions(e, logger, responseNode);
 
         }
 
@@ -100,22 +107,26 @@ public class VehicleController {
 
             Vehicle vehicleUpdated = vehicleService.updateVehicle(v, id);
 
-            if(vehicleUpdated == null){
+            return ResponseEntity.ok().body(vehicleUpdated);
 
-                logger.error("***** The Vehicle with id "+id+" that you are trying to update doesn't exists");
+        }
+        catch (ResourceAlreadyExistingException e){
 
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The Vehicle with id "+id+" that you are trying to update doesn't exists");
+            logger.error("***** "+e.getMessage()+" *****");
 
-            }
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
-            return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(vehicleUpdated);
+        }
+        catch (ResourceNotFoundException e){
+
+            logger.error("***** "+e.getMessage()+" *****");
+
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
         }
         catch (Exception e) {
 
-            logger.error("Users: Exception thrown: {}", e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
+            return vehicleService.manageExceptions(e, logger, responseNode);
 
         }
 
@@ -132,22 +143,21 @@ public class VehicleController {
 
             logger.info("***** Delete Vehicle with id "+id+" *****");
 
-            if(vehicleService.deleteVehicle(id)){
+            vehicleService.deleteVehicle(id);
 
-                return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>(HttpStatus.OK);
 
-            }
+        }
+        catch (ResourceNotFoundException e){
 
-            logger.error("***** Vehicle with id "+id+" doesn't exists *****");
+            logger.error("***** "+e.getMessage()+" *****");
 
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Vehicle with id "+id+" doesn't exists");
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
         }
         catch (Exception e) {
 
-            logger.error("Users: Exception thrown: {}", e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
+            return vehicleService.manageExceptions(e, logger, responseNode);
 
         }
 
@@ -166,22 +176,19 @@ public class VehicleController {
 
             Vehicle vehicle = vehicleService.insertVehicle(v);
 
-            if(vehicle == null){
+            return ResponseEntity.ok().body(vehicle);
 
-                logger.error("***** Vehicle already existing *****");
+        }
+        catch (ResourceAlreadyExistingException e){
 
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Vehicle already existing");
+            logger.error("***** "+e.getMessage()+" *****");
 
-            }
-
-            return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(vehicle);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
         }
         catch (Exception e) {
 
-            logger.error("Users: Exception thrown: {}", e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
+            return vehicleService.manageExceptions(e, logger, responseNode);
 
         }
 

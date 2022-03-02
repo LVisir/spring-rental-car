@@ -1,6 +1,9 @@
 package it.si2001.rentalcar.service;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import it.si2001.rentalcar.entity.Vehicle;
+import org.slf4j.Logger;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.Optional;
@@ -9,12 +12,14 @@ public interface VehicleService {
 
     Vehicle insertVehicle(Vehicle v);
 
-    boolean deleteVehicle(Long id);
+    void deleteVehicle(Long id);
 
     Vehicle updateVehicle(Vehicle v, Long id);
 
     Vehicle fetchVehicle(Long id);
 
     List<Vehicle> fetchVehicles();
+
+    ResponseEntity<ObjectNode> manageExceptions(Exception e, Logger logger, ObjectNode responseNode);
 
 }

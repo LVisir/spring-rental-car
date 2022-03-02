@@ -29,20 +29,22 @@ public class UserServiceImpl implements UserService {
     @Autowired
     UserRepository userRepository;
 
+
+
+
+
     @Override
     public List<User> getAllUsers() {
 
-        try{
+        List<User> users = userRepository.findAll();
 
-            return userRepository.findAll();
-
-        }catch (Exception e){
-
-            e.printStackTrace();
+        if(users.isEmpty()){
 
             return null;
 
         }
+
+        return users;
 
     }
 
@@ -53,23 +55,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserById(Long id) {
 
-        try{
+        Optional<User> user = userRepository.findByIdUser(id);
 
-            Optional<User> u = userRepository.findByIdUser(id);
+        if(user.isPresent()){
 
-            if (u.isEmpty()) {
+            return user.get();
 
-                return null;
+        }
 
-            }
+        else {
 
-            return u.get();
-
-        }catch (Error e){
-
-            e.printStackTrace();
-
-            return null;
+            throw new ResourceNotFoundException("User", "id", id);
 
         }
 
@@ -83,30 +79,38 @@ public class UserServiceImpl implements UserService {
     @Override
     public User insertUser(User u) {
 
-        try{
+        if(u.getIdUser() != null){
 
-            Optional<User> user = userRepository.findAll()
-                    .stream()
-                    .filter(x -> x.getEmail().equals(u.getEmail()) || x.getCf().equals(u.getCf()))
-                    .findFirst();
+            Optional<User> userFromId = userRepository.findByIdUser(u.getIdUser());
 
-            if (user.isPresent()) {
+            if(userFromId.isPresent()){
 
-                return null;
+                throw new ResourceAlreadyExistingException("User", "id", u.getIdUser());
 
             }
 
-            userRepository.saveAndFlush(u);
+        }
 
-            return u;
+        Optional<User> userFromEmail = userRepository.findByEmail(u.getEmail());
 
-        }catch (Exception e){
+        if(userFromEmail.isPresent()){
 
-            e.printStackTrace();
-
-            return null;
+            throw new ResourceAlreadyExistingException("User", "email", u.getEmail());
 
         }
+
+        Optional<User> userFromCf = userRepository.findByCf(u.getCf());
+
+        if(userFromCf.isPresent()){
+
+            throw new ResourceAlreadyExistingException("User", "cf", u.getCf());
+
+        }
+
+        userRepository.saveAndFlush(u);
+
+        return u;
+
 
     }
 
@@ -116,27 +120,18 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public boolean deleteUser(Long id) {
+    public void deleteUser(Long id) {
 
-        try{
+        Optional<User> user = userRepository.findByIdUser(id);
 
-            Optional<User> user = userRepository.findByIdUser(id);
-
-            if (user.isEmpty()) {
-
-                return false;
-
-            }
+        if(user.isPresent()){
 
             userRepository.delete(user.get());
 
-            return true;
+        }
+        else {
 
-        }catch (Exception e){
-
-            e.printStackTrace();
-
-            return false;
+            throw new ResourceNotFoundException("User", "id", id);
 
         }
 
@@ -150,16 +145,36 @@ public class UserServiceImpl implements UserService {
     @Override
     public User updateUser(User u, Long id) {
 
-        try{
 
-            Optional<User> existingUser = userRepository.findByIdUser(id);
+        Optional<User> existingUser = userRepository.findByIdUser(id);
 
-            if (existingUser.isEmpty()) {
+        if (existingUser.isPresent()) {
 
-                return null;
+            if(!u.getEmail().equals(existingUser.get().getEmail())){
+
+                Optional<User> existingUserEmail = userRepository.findByEmail(u.getEmail());
+
+                if(existingUserEmail.isPresent()){
+
+                    throw new ResourceAlreadyExistingException("User", "email", u.getEmail());
+
+                }
 
             }
 
+            if(!u.getCf().equals(existingUser.get().getCf())){
+
+                Optional<User> existingUserCf = userRepository.findByCf(u.getCf());
+
+                if(existingUserCf.isPresent()){
+
+                    throw new ResourceAlreadyExistingException("User", "cf", u.getCf());
+
+                }
+
+            }
+
+            existingUser.get().setIdUser(u.getIdUser());
             existingUser.get().setName(u.getName());
             existingUser.get().setSurname(u.getSurname());
             existingUser.get().setBirthDate(u.getBirthDate());
@@ -172,13 +187,9 @@ public class UserServiceImpl implements UserService {
 
             return existingUser.get();
 
-        }catch (Exception e){
-
-            e.printStackTrace();
-
-            return null;
-
         }
+
+        throw new ResourceNotFoundException("User", "id", id);
 
     }
 
@@ -189,32 +200,39 @@ public class UserServiceImpl implements UserService {
     @Override
     public User insertCustomer(User u) {
 
-        try{
+        if(u.getIdUser() != null){
 
-            Optional<User> user = userRepository.findAll()
-                    .stream()
-                    .filter(x -> x.getEmail().equals(u.getEmail()) || x.getCf().equals(u.getCf()))
-                    .findFirst();
+            Optional<User> userFromId = userRepository.findByIdUser(u.getIdUser());
 
-            if (user.isPresent()) {
+            if(userFromId.isPresent()){
 
-                return null;
+                throw new ResourceAlreadyExistingException("User", "id", u.getIdUser());
 
             }
 
-            u.setRole(User.Role.CUSTOMER);
+        }
 
-            userRepository.saveAndFlush(u);
+        Optional<User> userFromEmail = userRepository.findByEmail(u.getEmail());
 
-            return u;
+        if(userFromEmail.isPresent()){
 
-        }catch (Exception e){
-
-            e.printStackTrace();
+            throw new ResourceAlreadyExistingException("User", "email", u.getEmail());
 
         }
 
-        return null;
+        Optional<User> userFromCf = userRepository.findByCf(u.getCf());
+
+        if(userFromCf.isPresent()){
+
+            throw new ResourceAlreadyExistingException("User", "cf", u.getCf());
+
+        }
+
+        u.setRole(User.Role.CUSTOMER);
+
+        userRepository.saveAndFlush(u);
+
+        return u;
 
     }
 
@@ -225,15 +243,35 @@ public class UserServiceImpl implements UserService {
     @Override
     public User updateCustomer(User u, Long id) {
 
-        try{
-            Optional<User> existingUser = userRepository.findByIdUser(id);
+        Optional<User> existingUser = userRepository.findByIdUser(id);
 
-            if (existingUser.isEmpty()) {
-                return null;
-            } else if (existingUser.get().getRole().equals(User.Role.SUPERUSER)) {
-                return null;
+        if(existingUser.isPresent()){
+
+            if(!existingUser.get().getEmail().equals(u.getEmail())){
+
+                Optional<User> userFromEmail = userRepository.findByEmail(u.getEmail());
+
+                if(userFromEmail.isPresent()){
+
+                    throw new ResourceAlreadyExistingException("User", "email", u.getEmail());
+
+                }
+
             }
 
+            else if(!existingUser.get().getCf().equals(u.getCf())){
+
+                Optional<User> userFromCf = userRepository.findByCf(u.getCf());
+
+                if(userFromCf.isPresent()){
+
+                    throw new ResourceAlreadyExistingException("User", "cf", u.getCf());
+
+                }
+
+            }
+
+            existingUser.get().setIdUser(u.getIdUser());
             existingUser.get().setName(u.getName());
             existingUser.get().setSurname(u.getSurname());
             existingUser.get().setBirthDate(u.getBirthDate());
@@ -246,13 +284,9 @@ public class UserServiceImpl implements UserService {
 
             return existingUser.get();
 
-        }catch (Exception e){
-
-            e.printStackTrace();
-
-            return null;
-
         }
+
+        throw new ResourceNotFoundException("User", "id", id);
 
     }
 
@@ -261,33 +295,23 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public boolean deleteCustomer(Long id) {
+    public void deleteCustomer(Long id) {
 
-        try{
+        Optional<User> user = userRepository.findByIdUser(id);
 
-            Optional<User> user = userRepository.findByIdUser(id);
+        if(user.isPresent()){
 
-            if (user.isEmpty()) {
+            if(user.get().getRole().equals(User.Role.CUSTOMER)){
 
-                return false;
-
-            } else if (user.get().getRole().equals(User.Role.SUPERUSER)) {
-
-                return false;
+                userRepository.delete(user.get());
 
             }
 
-            userRepository.delete(user.get());
-
-            return true;
-
-        }catch (Exception e){
-
-            e.printStackTrace();
-
-            return false;
+            else throw new ResourceNotFoundException("Customer", "id", id);
 
         }
+
+        else throw new ResourceNotFoundException("User", "id", id);
 
     }
 
@@ -296,26 +320,22 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public ResponseEntity<ObjectNode> manageExceptions(Exception e, Logger logger, ObjectNode responseNode, HttpHeaders headers) {
+    public ResponseEntity<ObjectNode> manageExceptions(Exception e, Logger logger, ObjectNode responseNode) {
 
         if(e.getCause().getCause() instanceof SQLException){
 
-            logger.info("***** "+e.getCause().getCause()+" *****");
+            logger.error("***** "+e.getCause().getCause()+" *****");
 
-            responseNode.put("code", "error");
+            responseNode.put("error", "Server error");
 
-            responseNode.put("message", e.getCause().getCause().getMessage());
-
-            return new ResponseEntity<>(responseNode, headers, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(responseNode, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        logger.info("***** "+e.getCause().getMessage()+" *****");
+        logger.error("***** "+e.getCause().getMessage()+" *****");
 
-        responseNode.put("code", "error");
+        responseNode.put("error", "Bad request");
 
-        responseNode.put("message", e.getCause().getMessage());
-
-        return new ResponseEntity<>(responseNode, headers, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(responseNode, HttpStatus.BAD_REQUEST);
 
     }
 
@@ -360,26 +380,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> findAllCustomer() {
 
-        try{
+        List<User> customers = userRepository.findByRole(User.Role.CUSTOMER);
 
-            List<User> customers = userRepository.findByRole(User.Role.CUSTOMER);
-
-            if(customers.isEmpty()){
-
-                return null;
-
-            }
-
-            return customers;
-
-        }
-        catch (Exception e){
-
-            e.printStackTrace();
+        if(customers.isEmpty()){
 
             return null;
 
         }
+
+        return customers;
+
     }
 
 
@@ -802,6 +812,30 @@ public class UserServiceImpl implements UserService {
     }
 
 
+
+
+
+    @Override
+    public User getCustomer(Long id) {
+
+        Optional<User> customer = userRepository.findByIdUser(id);
+
+        if(customer.isPresent()){
+
+            if(customer.get().getRole().equals(User.Role.CUSTOMER)){
+
+                return customer.get();
+
+            }
+
+            else throw new ResourceNotFoundException("Customer", "id", id);
+
+        }
+
+        else throw new ResourceNotFoundException("Customer", "id", id);
+    }
+
+
     /**
      * From URL ?_sort=field1, field2, ..., fieldN&_order=asc,desc,...,asc
      * To ---> List<String> , List<Sort.Direction>
@@ -832,6 +866,12 @@ public class UserServiceImpl implements UserService {
         return sortOrders;
 
     }
+
+
+
+
+
+
 
 
 }

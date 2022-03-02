@@ -3,6 +3,7 @@ package it.si2001.rentalcar.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import it.si2001.rentalcar.entity.User;
+import it.si2001.rentalcar.exception.ResourceAlreadyExistingException;
 import it.si2001.rentalcar.exception.ResourceNotFoundException;
 import it.si2001.rentalcar.service.UserService;
 import org.slf4j.Logger;
@@ -46,22 +47,20 @@ public class UserController {
 
             List<User> users = userService.getAllUsers();
 
-            if(users.isEmpty()){
+            if(users == null){
 
                 logger.error("***** No Users found *****");
 
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
             }
 
-            return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(users);
+            return ResponseEntity.ok().body(users);
 
         }
         catch (Exception e) {
 
-            logger.error("Users: Exception thrown: {}", e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
+            return userService.manageExceptions(e, logger, responseNode);
 
         }
 
@@ -80,22 +79,19 @@ public class UserController {
 
             User u = userService.getUserById(id);
 
-            if(u == null){
+            return ResponseEntity.ok().body(u);
 
-                logger.error("The user with id "+id+" doesn't exists");
+        }
+        catch (ResourceNotFoundException e){
 
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The user with id "+id+" doesn't exists");
+            logger.error("***** "+e.getMessage()+" *****");
 
-            }
-
-            return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(u);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
         }
         catch (Exception e) {
 
-            logger.error("Users: Exception thrown: {}", e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
+            return userService.manageExceptions(e, logger, responseNode);
 
         }
 
@@ -106,7 +102,7 @@ public class UserController {
 
 
     @PostMapping(value = "/addUser")
-    public ResponseEntity<?> insertUser(@RequestBody User u){    // @RequestBody it takes a JSON format
+        public ResponseEntity<?> insertUser(@RequestBody User u){    // @RequestBody it takes a JSON format
 
         try{
 
@@ -116,22 +112,19 @@ public class UserController {
 
             User userInserted = userService.insertUser(u);
 
-            if(userInserted == null){
-
-                logger.error("***** User already existing *****");
-
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User already existing");
-
-            }
-
             return new ResponseEntity<>(userInserted, HttpStatus.CREATED);
+
+        }
+        catch (ResourceAlreadyExistingException e){
+
+            logger.error("***** "+e.getMessage()+" *****");
+
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
         }
         catch (Exception e) {
 
-            logger.error("Users: Exception thrown: {}", e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
+            return userService.manageExceptions(e, logger, responseNode);
 
         }
 
@@ -151,22 +144,19 @@ public class UserController {
 
             User customer = userService.insertCustomer(u);
 
-            if(customer == null){
-
-                logger.error("***** Customer already existing *****");
-
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Customer already existing");
-
-            }
-
             return new ResponseEntity<>(customer, HttpStatus.CREATED);
+
+        }
+        catch (ResourceAlreadyExistingException e){
+
+            logger.error("***** "+e.getMessage()+" *****");
+
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
         }
         catch (Exception e) {
 
-            logger.error("Users: Exception thrown: {}", e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
+            return userService.manageExceptions(e, logger, responseNode);
 
         }
 
@@ -183,22 +173,21 @@ public class UserController {
 
             logger.info("***** Delete User *****");
 
-            if(!userService.deleteUser(id)){
-
-                logger.error("***** Try to delete a not existing User *****");
-
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Try to delete a not existing User");
-
-            }
+            userService.deleteUser(id);
 
             return new ResponseEntity<>(HttpStatus.OK);
 
         }
+        catch (ResourceNotFoundException e){
+
+            logger.error("***** "+e.getMessage()+" *****");
+
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        }
         catch (Exception e) {
 
-            logger.error("Users: Exception thrown: {}", e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
+            return userService.manageExceptions(e, logger, responseNode);
 
         }
 
@@ -214,22 +203,21 @@ public class UserController {
 
             logger.info("***** Delete Customer *****");
 
-            if(!userService.deleteCustomer(id)){
-
-                logger.error("***** Try to delete a not existing Customer *****");
-
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Try to delete a not existing Customer");
-
-            }
+            userService.deleteCustomer(id);
 
             return new ResponseEntity<>(HttpStatus.OK);
 
         }
+        catch (ResourceNotFoundException e){
+
+            logger.error("***** "+e.getMessage()+" *****");
+
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        }
         catch (Exception e) {
 
-            logger.error("Users: Exception thrown: {}", e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
+            return userService.manageExceptions(e, logger, responseNode);
 
         }
 
@@ -244,26 +232,30 @@ public class UserController {
 
         try{
 
-            logger.info("***** Modify user *****");
+            logger.info("***** Update User with id "+id+" *****");
 
             User userUpdated = userService.updateUser(u, id);
-
-            if(userUpdated == null){
-
-                logger.error("***** The User you are trying to update doesn't exists *****");
-
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The User you are trying to update doesn't exists");
-
-            }
 
             return new ResponseEntity<>(userUpdated, HttpStatus.OK);
 
         }
+        catch (ResourceNotFoundException e){
+
+            logger.error("***** "+e.getMessage()+" *****");
+
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        }
+        catch (ResourceAlreadyExistingException e){
+
+            logger.error("***** "+e.getMessage()+" *****");
+
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+        }
         catch (Exception e) {
 
-            logger.error("Users: Exception thrown: {}", e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
+            return userService.manageExceptions(e, logger, responseNode);
 
         }
 
@@ -281,22 +273,26 @@ public class UserController {
 
             User customerUpdated = userService.updateCustomer(u, id);
 
-            if(customerUpdated == null){
-
-                logger.error("***** The Customer you are trying to update doesn't exists *****");
-
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The Customer you are trying to update doesn't exists");
-
-            }
-
             return new ResponseEntity<>(customerUpdated, HttpStatus.OK);
+
+        }
+        catch (ResourceNotFoundException e){
+
+            logger.error("***** "+e.getMessage()+" *****");
+
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        }
+        catch (ResourceAlreadyExistingException e){
+
+            logger.error("***** "+e.getMessage()+" *****");
+
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
         }
         catch (Exception e) {
 
-            logger.error("Users: Exception thrown: {}", e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
+            return userService.manageExceptions(e, logger, responseNode);
 
         }
 
@@ -345,21 +341,18 @@ public class UserController {
 
                 logger.error("***** No Customers found *****");
 
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No Customers found");
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
             }
 
             return new ResponseEntity<>(customers, HttpStatus.OK);
 
         }
-        catch (Exception e){
+        catch (Exception e) {
 
-            logger.error("Users: Exception thrown: {}", e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
+            return userService.manageExceptions(e, logger, responseNode);
 
         }
-
     }
 
 
@@ -373,28 +366,21 @@ public class UserController {
 
             logger.info("***** Get customer with id " + id + " *****");
 
-            User u = userService.getUserById(id);
+            User u = userService.getCustomer(id);
 
-            if (u != null) {
-
-                if (u.getRole().equals(User.Role.CUSTOMER)) {
-
-                    return new ResponseEntity<>(u, HttpStatus.OK);
-
-                }
-
-            }
-
-            logger.error("***** Customer not found *****");
-
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Customer not found");
+            return new ResponseEntity<>(u, HttpStatus.OK);
 
         }
-        catch (Exception e){
+        catch (ResourceNotFoundException e){
 
-            logger.error("Users: Exception thrown: {}", e.getMessage());
+            logger.error("***** "+e.getMessage()+" *****");
 
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        }
+        catch (Exception e) {
+
+            return userService.manageExceptions(e, logger, responseNode);
 
         }
 
@@ -511,7 +497,7 @@ public class UserController {
         }
         catch (Exception e){
 
-            userService.manageExceptions(e, logger, responseNode, headers);
+            userService.manageExceptions(e, logger, responseNode);
 
         }
 
@@ -560,7 +546,7 @@ public class UserController {
         }
         catch (Exception e){
 
-            userService.manageExceptions(e, logger, responseNode, headers);
+            userService.manageExceptions(e, logger, responseNode);
 
         }
 

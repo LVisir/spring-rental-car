@@ -1,12 +1,19 @@
 package it.si2001.rentalcar.service.impl;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import it.si2001.rentalcar.entity.Vehicle;
+import it.si2001.rentalcar.exception.ResourceAlreadyExistingException;
+import it.si2001.rentalcar.exception.ResourceNotFoundException;
 import it.si2001.rentalcar.repository.VehicleRepository;
 import it.si2001.rentalcar.service.VehicleService;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,38 +31,30 @@ public class VehicleServiceImpl implements VehicleService {
     @Override
     public Vehicle insertVehicle(Vehicle v) {
 
-        try{
+        if(v.getIdVehicle() != null){
 
-            Optional<Vehicle> vehicle = vehicleRepository.findByLicensePlate(v.getLicensePlate());
+            Optional<Vehicle> existingVehicle = vehicleRepository.findByIdVehicle(v.getIdVehicle());
 
-            if(vehicle.isPresent()){
+            if(existingVehicle.isPresent()){
 
-                return null;
-
-            }
-
-            else if(v.getIdVehicle() != null){
-
-                Optional<Vehicle> vehicleWithId = vehicleRepository.findByIdVehicle(v.getIdVehicle());
-
-                if(vehicleWithId.isPresent()){
-
-                    return null;
-
-                }
+                throw new ResourceAlreadyExistingException("Vehicle", "id", v.getIdVehicle());
 
             }
+
+        }
+
+        Optional<Vehicle> vechileFromLicensePlate = vehicleRepository.findByLicensePlate(v.getLicensePlate());
+
+        if(vechileFromLicensePlate.isPresent()){
+
+            throw new ResourceAlreadyExistingException("Vehicle", "license plate", v.getLicensePlate());
+
+        }
+        else{
 
             vehicleRepository.saveAndFlush(v);
 
             return v;
-
-        }
-        catch (Exception e){
-
-            e.printStackTrace();
-
-            throw e;
 
         }
 
@@ -66,28 +65,18 @@ public class VehicleServiceImpl implements VehicleService {
 
 
     @Override
-    public boolean deleteVehicle(Long id) {
+    public void deleteVehicle(Long id) {
 
-        try{
+        Optional<Vehicle> vehicle = vehicleRepository.findByIdVehicle(id);
 
-            Optional<Vehicle> vehicle = vehicleRepository.findByIdVehicle(id);
+        if(vehicle.isPresent()){
 
-            if(vehicle.isPresent()){
-
-                vehicleRepository.delete(vehicle.get());
-
-                return true;
-
-            }
-
-            return false;
+            vehicleRepository.delete(vehicle.get());
 
         }
-        catch (Exception e){
+        else{
 
-            e.printStackTrace();
-
-            throw e;
+            throw new ResourceNotFoundException("Vehicle", "id", id);
 
         }
 
@@ -100,34 +89,36 @@ public class VehicleServiceImpl implements VehicleService {
     @Override
     public Vehicle updateVehicle(Vehicle v, Long id) {
 
-        try{
+        Optional<Vehicle> vehicleToUpdate = vehicleRepository.findByIdVehicle(id);
 
-           Optional<Vehicle> vehicleToUpdate = vehicleRepository.findByIdVehicle(id);
+        if(vehicleToUpdate.isPresent()){
 
-           if(vehicleToUpdate.isPresent()){
+            if(!vehicleToUpdate.get().getLicensePlate().equals(v.getLicensePlate())){
 
-               vehicleToUpdate.get().setLicensePlate(v.getLicensePlate());
-               vehicleToUpdate.get().setManufacturer(v.getManufacturer());
-               vehicleToUpdate.get().setModel(v.getModel());
-               vehicleToUpdate.get().setRegistrYear(v.getRegistrYear());
-               vehicleToUpdate.get().setTypology(v.getTypology());
+                Optional<Vehicle> vehicleFromLicense = vehicleRepository.findByLicensePlate(v.getLicensePlate());
 
-               vehicleRepository.saveAndFlush(vehicleToUpdate.get());
+                if(vehicleFromLicense.isPresent()){
 
-               return vehicleToUpdate.get();
+                    throw new ResourceAlreadyExistingException("Vehicle", "licese plate", v.getLicensePlate());
 
-           }
+                }
 
-           return null;
+            }
+
+            vehicleToUpdate.get().setIdVehicle(v.getIdVehicle());
+            vehicleToUpdate.get().setLicensePlate(v.getLicensePlate());
+            vehicleToUpdate.get().setManufacturer(v.getManufacturer());
+            vehicleToUpdate.get().setModel(v.getModel());
+            vehicleToUpdate.get().setRegistrYear(v.getRegistrYear());
+            vehicleToUpdate.get().setTypology(v.getTypology());
+
+            vehicleRepository.saveAndFlush(vehicleToUpdate.get());
+
+            return vehicleToUpdate.get();
 
         }
-        catch (Exception e){
 
-            e.printStackTrace();
-
-            throw e;
-
-        }
+        throw new ResourceNotFoundException("Vehicle", "id", id);
 
     }
 
@@ -138,20 +129,15 @@ public class VehicleServiceImpl implements VehicleService {
     @Override
     public Vehicle fetchVehicle(Long id) {
 
-        try{
+        Optional<Vehicle> vehicle = vehicleRepository.findByIdVehicle(id);
 
-            Optional<Vehicle> v = vehicleRepository.findByIdVehicle(id);
+        if(vehicle.isPresent()){
 
-            return v.orElse(null);
-
-        }
-        catch (Exception e){
-
-            e.printStackTrace();
-
-            throw e;
+            return vehicle.get();
 
         }
+
+        throw new ResourceNotFoundException("Vehicle", "id", id);
 
     }
 
@@ -162,26 +148,39 @@ public class VehicleServiceImpl implements VehicleService {
     @Override
     public List<Vehicle> fetchVehicles() {
 
-        try{
+        List<Vehicle> vehicles = vehicleRepository.findAll();
 
-            List<Vehicle> vehicles = vehicleRepository.findAll();
+        if(vehicles.isEmpty()){
 
-            if(vehicles.isEmpty()){
-
-                return null;
-
-            }
-
-            return vehicles;
+            return null;
 
         }
-        catch (Exception e){
 
-            e.printStackTrace();
+        return vehicles;
 
-            throw e;
+    }
 
+
+
+
+
+    @Override
+    public ResponseEntity<ObjectNode> manageExceptions(Exception e, Logger logger, ObjectNode responseNode) {
+
+        if(e.getCause().getCause() instanceof SQLException){
+
+            logger.error("***** "+e.getCause().getCause()+" *****");
+
+            responseNode.put("error", "Server error");
+
+            return new ResponseEntity<>(responseNode, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+
+        logger.error("***** "+e.getCause().getMessage()+" *****");
+
+        responseNode.put("error", "Bad request");
+
+        return new ResponseEntity<>(responseNode, HttpStatus.BAD_REQUEST);
 
     }
 

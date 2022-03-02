@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import it.si2001.rentalcar.entity.User;
 import org.slf4j.Logger;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import java.text.ParseException;
 import java.util.Date;
@@ -18,7 +17,7 @@ public interface UserService {
 
     User insertUser(User u);
 
-    boolean deleteUser(Long id);
+    void deleteUser(Long id);
 
     User updateUser(User u, Long id);
 
@@ -26,9 +25,9 @@ public interface UserService {
 
     User updateCustomer(User u, Long id);
 
-    boolean deleteCustomer(Long id);
+    void deleteCustomer(Long id);
 
-    ResponseEntity<ObjectNode> manageExceptions(Exception e, Logger logger, ObjectNode responseNode, HttpHeaders headers);
+    ResponseEntity<ObjectNode> manageExceptions(Exception e, Logger logger, ObjectNode responseNode);
 
     List<User> getUsersSortedBy(String field);
 
@@ -53,5 +52,7 @@ public interface UserService {
     List<User> searchInCustomersBySort(String field, String value, int offset, int pageSize, List<String> order, List<String> fields) throws ParseException;
 
     User getUserByEmail(String email);
+
+    User getCustomer(Long id);
 
 }
