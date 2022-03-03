@@ -5,17 +5,15 @@ import it.si2001.rentalcar.entity.User;
 import it.si2001.rentalcar.exception.ResourceAlreadyExistingException;
 import it.si2001.rentalcar.exception.ResourceNotFoundException;
 import it.si2001.rentalcar.repository.UserRepository;
+import it.si2001.rentalcar.service.PrettyLogger;
 import it.si2001.rentalcar.service.UserService;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -28,6 +26,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    PrettyLogger prettyLogger;
 
 
 
@@ -322,20 +323,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<ObjectNode> manageExceptions(Exception e, Logger logger, ObjectNode responseNode) {
 
-        if(e.getCause().getCause() instanceof SQLException){
-
-            logger.error("***** "+e.getCause().getCause()+" *****");
-
-            responseNode.put("error", "Server error");
-
-            return new ResponseEntity<>(responseNode, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-        logger.error("***** "+e.getCause().getMessage()+" *****");
-
-        responseNode.put("error", "Bad request");
-
-        return new ResponseEntity<>(responseNode, HttpStatus.BAD_REQUEST);
+        return prettyLogger.prettyException(e, logger, responseNode);
 
     }
 
@@ -358,11 +346,11 @@ public class UserServiceImpl implements UserService {
     /**
      * By taking a list of fields to order and the corresponding list of order type (asc|desc)
      * it will sort by the above settings
-     * @param offset
-     * @param pageSize
-     * @param order
-     * @param fields
-     * @return
+     * @param offset : from which page start (0 is the first)
+     * @param pageSize : the size of the page
+     * @param order : asc|desc
+     * @param fields : by which fields do the order
+     * @return : a list of User from page offset, pageSize element, with order by order and by fields
      */
     @Override
     public Page<User> getPagingUsersMultipleSortOrder(int offset, int pageSize, List<String> order, List<String> fields) {
@@ -550,11 +538,11 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Search a field from a certain value and in a certain page
-     * @param field
-     * @param value
-     * @param offset
-     * @param pageSize
-     * @return
+     * @param field : search by this field
+     * @param value : search by this value
+     * @param offset : starts from page offset (0 is the first page)
+     * @param pageSize : number of element per page
+     * @return : list of User search by a certain field with a certain value in a certain page of a certain number of elements
      */
     @Override
     public List<User> searchInCustomers(String field, String value, int offset, int pageSize) throws ParseException {
@@ -839,9 +827,9 @@ public class UserServiceImpl implements UserService {
     /**
      * From URL ?_sort=field1, field2, ..., fieldN&_order=asc,desc,...,asc
      * To ---> List<String> , List<Sort.Direction>
-     * @param order
-     * @param fields
-     * @return
+     * @param order : asc/desc
+     * @param fields : sort by this fields
+     * @return : a List containing elements where each element are represented as: [order, field]
      */
     public List<Sort.Order> getListSortOrders(List<String> order, List<String> fields) {
 

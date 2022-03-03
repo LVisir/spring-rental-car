@@ -18,7 +18,8 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "vehicles")
 @JsonIgnoreProperties({"vehicleBookings"})
 public class Vehicle implements Serializable {
@@ -51,7 +52,7 @@ public class Vehicle implements Serializable {
     private Typology typology;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "vehicle")
-    @JsonManagedReference
+    @JsonManagedReference(value = "vehicle_bookings")
     @JsonProperty("vehicleBookings")
     @ToString.Exclude
     private List<Booking> bookings = new ArrayList<>();

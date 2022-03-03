@@ -18,7 +18,8 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "users")
 @JsonIgnoreProperties({"userBookings"})
 public class User implements Serializable {
@@ -61,7 +62,7 @@ public class User implements Serializable {
     // if u will not ignore the JSON properties, doesn't matter the FetchType, the select will follow the JSON properties
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
     @ToString.Exclude
-    @JsonManagedReference
+    @JsonManagedReference(value = "user_bookings")
     @JsonProperty("userBookings")
     private List<Booking> bookings = new ArrayList<>();
 

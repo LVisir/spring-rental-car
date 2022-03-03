@@ -86,7 +86,9 @@ public class UserController {
 
             logger.error("***** "+e.getMessage()+" *****");
 
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            responseNode.put("error", e.getMessage());
+
+            return new ResponseEntity<>(responseNode, HttpStatus.NOT_FOUND);
 
         }
         catch (Exception e) {
@@ -119,7 +121,9 @@ public class UserController {
 
             logger.error("***** "+e.getMessage()+" *****");
 
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            responseNode.put("error", e.getMessage());
+
+            return new ResponseEntity<>(responseNode, HttpStatus.NO_CONTENT);
 
         }
         catch (Exception e) {
@@ -151,7 +155,9 @@ public class UserController {
 
             logger.error("***** "+e.getMessage()+" *****");
 
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            responseNode.put("error", e.getMessage());
+
+            return new ResponseEntity<>(responseNode, HttpStatus.NO_CONTENT);
 
         }
         catch (Exception e) {
@@ -182,7 +188,9 @@ public class UserController {
 
             logger.error("***** "+e.getMessage()+" *****");
 
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            responseNode.put("error", e.getMessage());
+
+            return new ResponseEntity<>(responseNode, HttpStatus.NOT_FOUND);
 
         }
         catch (Exception e) {
@@ -212,7 +220,9 @@ public class UserController {
 
             logger.error("***** "+e.getMessage()+" *****");
 
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            responseNode.put("error", e.getMessage());
+
+            return new ResponseEntity<>(responseNode, HttpStatus.NOT_FOUND);
 
         }
         catch (Exception e) {
@@ -243,14 +253,18 @@ public class UserController {
 
             logger.error("***** "+e.getMessage()+" *****");
 
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            responseNode.put("error", e.getMessage());
+
+            return new ResponseEntity<>(responseNode, HttpStatus.NOT_FOUND);
 
         }
         catch (ResourceAlreadyExistingException e){
 
             logger.error("***** "+e.getMessage()+" *****");
 
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            responseNode.put("error", e.getMessage());
+
+            return new ResponseEntity<>(responseNode, HttpStatus.NO_CONTENT);
 
         }
         catch (Exception e) {
@@ -280,14 +294,18 @@ public class UserController {
 
             logger.error("***** "+e.getMessage()+" *****");
 
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            responseNode.put("error", e.getMessage());
+
+            return new ResponseEntity<>(responseNode, HttpStatus.NOT_FOUND);
 
         }
         catch (ResourceAlreadyExistingException e){
 
             logger.error("***** "+e.getMessage()+" *****");
 
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            responseNode.put("error", e.getMessage());
+
+            return new ResponseEntity<>(responseNode, HttpStatus.NO_CONTENT);
 
         }
         catch (Exception e) {
@@ -375,7 +393,9 @@ public class UserController {
 
             logger.error("***** "+e.getMessage()+" *****");
 
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            responseNode.put("error", e.getMessage());
+
+            return new ResponseEntity<>(responseNode, HttpStatus.NOT_FOUND);
 
         }
         catch (Exception e) {

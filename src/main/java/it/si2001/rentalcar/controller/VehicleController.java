@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -83,7 +82,9 @@ public class VehicleController {
 
             logger.error("***** "+e.getMessage()+" *****");
 
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            responseNode.put("error", e.getMessage());
+
+            return new ResponseEntity<>(responseNode, HttpStatus.NOT_FOUND);
 
         }
         catch (Exception e) {
@@ -114,14 +115,18 @@ public class VehicleController {
 
             logger.error("***** "+e.getMessage()+" *****");
 
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            responseNode.put("error", e.getMessage());
+
+            return new ResponseEntity<>(responseNode, HttpStatus.NO_CONTENT);
 
         }
         catch (ResourceNotFoundException e){
 
             logger.error("***** "+e.getMessage()+" *****");
 
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            responseNode.put("error", e.getMessage());
+
+            return new ResponseEntity<>(responseNode, HttpStatus.NOT_FOUND);
 
         }
         catch (Exception e) {
@@ -152,7 +157,9 @@ public class VehicleController {
 
             logger.error("***** "+e.getMessage()+" *****");
 
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            responseNode.put("error", e.getMessage());
+
+            return new ResponseEntity<>(responseNode, HttpStatus.NOT_FOUND);
 
         }
         catch (Exception e) {
@@ -183,7 +190,9 @@ public class VehicleController {
 
             logger.error("***** "+e.getMessage()+" *****");
 
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            responseNode.put("error", e.getMessage());
+
+            return new ResponseEntity<>(responseNode, HttpStatus.NO_CONTENT);
 
         }
         catch (Exception e) {

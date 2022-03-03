@@ -5,6 +5,7 @@ import it.si2001.rentalcar.entity.Vehicle;
 import it.si2001.rentalcar.exception.ResourceAlreadyExistingException;
 import it.si2001.rentalcar.exception.ResourceNotFoundException;
 import it.si2001.rentalcar.repository.VehicleRepository;
+import it.si2001.rentalcar.service.PrettyLogger;
 import it.si2001.rentalcar.service.VehicleService;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,9 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Autowired
     VehicleRepository vehicleRepository;
+
+    @Autowired
+    PrettyLogger prettyLogger;
 
 
 
@@ -167,20 +171,7 @@ public class VehicleServiceImpl implements VehicleService {
     @Override
     public ResponseEntity<ObjectNode> manageExceptions(Exception e, Logger logger, ObjectNode responseNode) {
 
-        if(e.getCause().getCause() instanceof SQLException){
-
-            logger.error("***** "+e.getCause().getCause()+" *****");
-
-            responseNode.put("error", "Server error");
-
-            return new ResponseEntity<>(responseNode, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-        logger.error("***** "+e.getCause().getMessage()+" *****");
-
-        responseNode.put("error", "Bad request");
-
-        return new ResponseEntity<>(responseNode, HttpStatus.BAD_REQUEST);
+        return prettyLogger.prettyException(e, logger, responseNode);
 
     }
 

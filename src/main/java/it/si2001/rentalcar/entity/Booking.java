@@ -3,9 +3,6 @@ package it.si2001.rentalcar.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
 import org.hibernate.Hibernate;
-import org.hibernate.annotations.LazyToOne;
-import org.hibernate.annotations.LazyToOneOption;
-
 import javax.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
@@ -16,7 +13,8 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "bookings")
 public class Booking implements Serializable {
 
@@ -39,16 +37,16 @@ public class Booking implements Serializable {
     @Column(name = "approval")
     private boolean approval;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "vehicle_id", referencedColumnName = "id")
-    @JsonBackReference
+    @JsonBackReference(value = "vehicle_bookings")
     @ToString.Exclude
     private Vehicle vehicle;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @ToString.Exclude
-    @JsonBackReference
+    @JsonBackReference(value = "user_bookings")
     private User user;
 
     @Override

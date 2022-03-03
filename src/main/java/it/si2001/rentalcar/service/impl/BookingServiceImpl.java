@@ -11,14 +11,13 @@ import it.si2001.rentalcar.repository.BookingRepository;
 import it.si2001.rentalcar.repository.UserRepository;
 import it.si2001.rentalcar.repository.VehicleRepository;
 import it.si2001.rentalcar.service.BookingService;
+import it.si2001.rentalcar.service.PrettyLogger;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,6 +34,9 @@ public class BookingServiceImpl implements BookingService {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    PrettyLogger prettyLogger;
 
 
 
@@ -88,44 +90,49 @@ public class BookingServiceImpl implements BookingService {
 
         Optional<User> user = userRepository.findByIdUser(b.getUser().getIdUser());
 
-        if(vehicle.isPresent() && user.isPresent()){
+        if(vehicle.isPresent()){
+            if(user.isPresent()){
 
-            if(vehicle.get().getRegistrYear().compareTo(b.getStart()) >= 0){
+                if(vehicle.get().getRegistrYear().compareTo(b.getStart()) >= 0){
 
-                throw new CustomException("The registration date of the vehicle is higher or equal to the start date of the booking");
-
-            }
-            else if(b.getStart().compareTo(b.getEnd()) >= 0){
-
-                throw new CustomException("The start date of the booking is higher or equal to the end date");
-
-            }
-
-            List<Booking> bookingsOfUser = bookingRepository.findAll()
-                    .stream()
-                    .filter(x -> x.getUser().getIdUser().equals(b.getUser().getIdUser()))
-                    .collect(Collectors.toList());
-
-            if(!bookingsOfUser.isEmpty()){
-
-                if(bookingsOfUser.stream().anyMatch(x -> !x.isApproval() && !x.getIdBooking().equals(b.getIdBooking()))){
-
-                    throw new CustomException("The User with id "+b.getUser().getIdUser()+" has already a booking under approval");
+                    throw new CustomException("The registration date of the vehicle is higher or equal to the start date of the booking");
 
                 }
-                else if(bookingsOfUser.stream()
-                        .anyMatch(x ->
-                                (x.getStart().compareTo(b.getStart()) < 0 && x.getEnd().compareTo(b.getStart()) > 0) ||
-                                (x.getStart().compareTo(b.getEnd()) < 0 && x.getEnd().compareTo(b.getEnd()) > 0) && !x.getIdBooking().equals(b.getIdBooking())))
-                {
+                else if(b.getStart().compareTo(b.getEnd()) >= 0){
 
-                    throw new CustomException("Booking from "+b.getStart().toString()+" to "+b.getEnd().toString()+" of the Vehicle of the id "+b.getVehicle().getIdVehicle()+" already existing");
+                    throw new CustomException("The start date of the booking is higher or equal to the end date");
 
                 }
 
+                List<Booking> bookingsOfUser = bookingRepository.findAll()
+                        .stream()
+                        .filter(x -> x.getUser().getIdUser().equals(b.getUser().getIdUser()) && !x.getIdBooking().equals(b.getIdBooking()))
+                        .collect(Collectors.toList());
+
+                if(!bookingsOfUser.isEmpty()){
+
+                    if(bookingsOfUser.stream().anyMatch(x -> !x.isApproval())){
+
+                        throw new CustomException("The User with id "+b.getUser().getIdUser()+" has already a booking under approval");
+
+                    }
+                    else if(bookingsOfUser.stream()
+                            .anyMatch(x ->
+                                    (x.getStart().compareTo(b.getStart()) < 0 && x.getEnd().compareTo(b.getStart()) > 0) ||
+                                            (x.getStart().compareTo(b.getEnd()) < 0 && x.getEnd().compareTo(b.getEnd()) > 0)))
+                    {
+
+                        throw new CustomException("Already existing a booking between "+b.getStart().toString()+" to "+b.getEnd().toString()+" of the Vehicle of the id "+b.getVehicle().getIdVehicle());
+
+                    }
+
+                }
+
             }
+            else throw new ResourceNotFoundException("User", "id", b.getUser().getIdUser());
 
         }
+        else throw new ResourceNotFoundException("Vehicle", "id", b.getVehicle().getIdVehicle());
 
     }
 
@@ -184,6 +191,12 @@ public class BookingServiceImpl implements BookingService {
 
         if(booking.isPresent()){
 
+            if(!b.getIdBooking().equals(id)){
+
+                throw new CustomException("The id is not valid");
+
+            }
+
             checkInsertUpdateConstraint(b);
 
             booking.get().setIdBooking(b.getIdBooking());
@@ -207,20 +220,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public ResponseEntity<ObjectNode> manageExceptions(Exception e, Logger logger, ObjectNode responseNode) {
 
-        if(e.getCause().getCause() instanceof SQLException){
-
-            logger.error("***** "+e.getCause().getCause()+" *****");
-
-            responseNode.put("error", "Server error");
-
-            return new ResponseEntity<>(responseNode, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-        logger.error("***** "+e.getCause().getMessage()+" *****");
-
-        responseNode.put("error", "Bad request");
-
-        return new ResponseEntity<>(responseNode, HttpStatus.BAD_REQUEST);
+        return prettyLogger.prettyException(e, logger, responseNode);
 
     }
 
