@@ -122,6 +122,25 @@ public class BookingServiceImpl implements BookingService {
                                             (x.getStart().compareTo(b.getEnd()) < 0 && x.getEnd().compareTo(b.getEnd()) > 0)))
                     {
 
+                        throw new CustomException("Already existing a booking between "+b.getStart().toString()+" to "+b.getEnd().toString()+" of the Customer with id "+b.getUser().getIdUser());
+
+                    }
+
+                }
+
+                List<Booking> bookingsOfVehicle = bookingRepository.findAll()
+                        .stream()
+                        .filter(x -> x.getVehicle().getIdVehicle().equals(b.getVehicle().getIdVehicle()) && !x.getIdBooking().equals(b.getIdBooking()))
+                        .collect(Collectors.toList());
+
+                if(!bookingsOfVehicle.isEmpty()){
+
+                    if(bookingsOfVehicle.stream()
+                            .anyMatch(x ->
+                                    (x.getStart().compareTo(b.getStart()) < 0 && x.getEnd().compareTo(b.getStart()) > 0) ||
+                                            (x.getStart().compareTo(b.getEnd()) < 0 && x.getEnd().compareTo(b.getEnd()) > 0)))
+                    {
+
                         throw new CustomException("Already existing a booking between "+b.getStart().toString()+" to "+b.getEnd().toString()+" of the Vehicle of the id "+b.getVehicle().getIdVehicle());
 
                     }
