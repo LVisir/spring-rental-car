@@ -1,4 +1,7 @@
 # spring-rental-car
 
-## Next-step
-Must change the getCustomerSearch(...) method in the UserController to UserService.
+## Work summary
+
+Spring Security: Done.
+
+Next step: Spring validation.
