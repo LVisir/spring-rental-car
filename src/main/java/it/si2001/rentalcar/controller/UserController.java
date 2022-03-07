@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@CrossOrigin
+//@CrossOrigin
 @RequestMapping("/users")
 public class UserController {
 
@@ -43,7 +43,7 @@ public class UserController {
 
         try{
 
-            logger.info("***** Fetch users *****");
+            logger.info("***** Try to fetch users *****");
 
             List<User> users = userService.getAllUsers();
 
@@ -75,7 +75,7 @@ public class UserController {
 
         try{
 
-            logger.info("***** Fetch the user with id "+id+" *****");
+            logger.info("***** Try to fetch the user with id "+id+" *****");
 
             User u = userService.getUserById(id);
 
@@ -108,7 +108,7 @@ public class UserController {
 
         try{
 
-            logger.info("***** Insert user *****");
+            logger.info("***** Try to insert the User *****");
 
             logger.info(u.getName()+" "+u.getSurname()+" "+u.getCf()+" "+u.getRole()+" "+u.getPassword()+" "+u.getEmail()+" "+u.getBirthDate());
 
@@ -142,7 +142,7 @@ public class UserController {
 
         try{
 
-            logger.info("***** Insert customer *****");
+            logger.info("***** Try to insert the customer *****");
 
             logger.info(u.getName()+" "+u.getSurname()+" "+u.getCf()+" "+u.getRole()+" "+u.getPassword()+" "+u.getEmail()+" "+u.getBirthDate());
 
@@ -177,7 +177,7 @@ public class UserController {
 
         try{
 
-            logger.info("***** Delete User *****");
+            logger.info("***** Try to delete the User *****");
 
             userService.deleteUser(id);
 
@@ -209,7 +209,7 @@ public class UserController {
 
         try{
 
-            logger.info("***** Delete Customer *****");
+            logger.info("***** Try to delete the Customer *****");
 
             userService.deleteCustomer(id);
 
@@ -242,7 +242,7 @@ public class UserController {
 
         try{
 
-            logger.info("***** Update User with id "+id+" *****");
+            logger.info("***** Try to update User with id "+id+" *****");
 
             User userUpdated = userService.updateUser(u, id);
 
@@ -283,7 +283,7 @@ public class UserController {
 
         try{
 
-            logger.info("***** Modify customer *****");
+            logger.info("***** Try to update the Customer *****");
 
             User customerUpdated = userService.updateCustomer(u, id);
 
@@ -351,7 +351,7 @@ public class UserController {
 
         try{
 
-            logger.info("***** Fetch all the Customers *****");
+            logger.info("***** Try to fetch all the Customers *****");
 
             List<User> customers = userService.findAllCustomer();
 
@@ -382,7 +382,7 @@ public class UserController {
 
         try{
 
-            logger.info("***** Get customer with id " + id + " *****");
+            logger.info("***** Try to get customer with id " + id + " *****");
 
             User u = userService.getCustomer(id);
 
@@ -415,7 +415,7 @@ public class UserController {
 
         try{
 
-            logger.info("***** Fetch User with email " + email + " *****");
+            logger.info("***** Try to get the User with email " + email + " *****");
 
             User u = userService.findCustomerByEmail(email);
 
@@ -445,7 +445,7 @@ public class UserController {
 
         try{
 
-            logger.info("***** Fetch User with email "+email+" *****");
+            logger.info("***** Try to get the User with email "+email+" *****");
 
             User u = userService.getUserByEmail(email);
 
@@ -498,7 +498,7 @@ public class UserController {
 
         try{
 
-            logger.info("***** Fetch Customers that have "+field+" = "+value+" *****");
+            logger.info("***** Try to fetch Customers that have "+field+" = "+value+" *****");
 
             results = userService.searchInCustomers(field, value, --page, pageSize);
 

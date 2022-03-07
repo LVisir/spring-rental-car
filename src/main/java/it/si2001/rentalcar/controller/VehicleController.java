@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin
+//@CrossOrigin
 @RequestMapping("/vehicles")
 public class VehicleController {
 
@@ -39,7 +39,7 @@ public class VehicleController {
 
         try{
 
-            logger.info("***** Fetch all vehicles *****");
+            logger.info("***** Try to fetch all vehicles *****");
 
             List<Vehicle> vehicles = vehicleService.fetchVehicles();
 
@@ -71,7 +71,7 @@ public class VehicleController {
 
         try{
 
-            logger.info("***** Get Vehicle with id "+id+" *****");
+            logger.info("***** Try to get Vehicle with id "+id+" *****");
 
             Vehicle v = vehicleService.fetchVehicle(id);
 
@@ -104,7 +104,7 @@ public class VehicleController {
 
         try{
 
-            logger.info("***** Update vehicle with id "+id+" *****");
+            logger.info("***** Try to update Vehicle with id "+id+" *****");
 
             Vehicle vehicleUpdated = vehicleService.updateVehicle(v, id);
 
@@ -146,7 +146,7 @@ public class VehicleController {
 
         try{
 
-            logger.info("***** Delete Vehicle with id "+id+" *****");
+            logger.info("***** Try to delete Vehicle with id "+id+" *****");
 
             vehicleService.deleteVehicle(id);
 
@@ -179,7 +179,7 @@ public class VehicleController {
 
         try{
 
-            logger.info("***** Insert Vehicle *****");
+            logger.info("***** Try to insert Vehicle *****");
 
             Vehicle vehicle = vehicleService.insertVehicle(v);
 

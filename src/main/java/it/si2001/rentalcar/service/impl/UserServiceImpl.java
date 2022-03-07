@@ -5,12 +5,16 @@ import it.si2001.rentalcar.entity.User;
 import it.si2001.rentalcar.exception.ResourceAlreadyExistingException;
 import it.si2001.rentalcar.exception.ResourceNotFoundException;
 import it.si2001.rentalcar.repository.UserRepository;
-import it.si2001.rentalcar.service.PrettyLogger;
 import it.si2001.rentalcar.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -22,7 +26,8 @@ import java.util.stream.IntStream;
 
 @Service
 @Transactional
-public class UserServiceImpl implements UserService {
+@Slf4j
+public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Autowired
     UserRepository userRepository;
@@ -56,9 +61,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserById(Long id) {
 
+        log.info(" Check if the User exists ");
+
         Optional<User> user = userRepository.findByIdUser(id);
 
         if(user.isPresent()){
+
+            log.info("Return User");
 
             return user.get();
 
@@ -82,6 +91,8 @@ public class UserServiceImpl implements UserService {
 
         if(u.getIdUser() != null){
 
+            log.info(" Check if the User exists ");
+
             Optional<User> userFromId = userRepository.findByIdUser(u.getIdUser());
 
             if(userFromId.isPresent()){
@@ -92,6 +103,8 @@ public class UserServiceImpl implements UserService {
 
         }
 
+        log.info(" Check if the email of the User exists ");
+
         Optional<User> userFromEmail = userRepository.findByEmail(u.getEmail());
 
         if(userFromEmail.isPresent()){
@@ -100,6 +113,8 @@ public class UserServiceImpl implements UserService {
 
         }
 
+        log.info(" Check if the fiscal code of the User exists ");
+
         Optional<User> userFromCf = userRepository.findByCf(u.getCf());
 
         if(userFromCf.isPresent()){
@@ -107,6 +122,8 @@ public class UserServiceImpl implements UserService {
             throw new ResourceAlreadyExistingException("User", "cf", u.getCf());
 
         }
+
+        log.info(" Save the User ");
 
         userRepository.saveAndFlush(u);
 
@@ -123,9 +140,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Long id) {
 
+        log.info(" Check if the User exists ");
+
         Optional<User> user = userRepository.findByIdUser(id);
 
         if(user.isPresent()){
+
+            log.info("Delete User");
 
             userRepository.delete(user.get());
 
@@ -146,12 +167,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public User updateUser(User u, Long id) {
 
+        log.info(" Check if the User exists ");
 
         Optional<User> existingUser = userRepository.findByIdUser(id);
 
         if (existingUser.isPresent()) {
 
             if(!u.getEmail().equals(existingUser.get().getEmail())){
+
+                log.info(" Check if the email of the User exists ");
 
                 Optional<User> existingUserEmail = userRepository.findByEmail(u.getEmail());
 
@@ -164,6 +188,8 @@ public class UserServiceImpl implements UserService {
             }
 
             if(!u.getCf().equals(existingUser.get().getCf())){
+
+                log.info(" Check if the fiscal code of the User exists ");
 
                 Optional<User> existingUserCf = userRepository.findByCf(u.getCf());
 
@@ -184,6 +210,8 @@ public class UserServiceImpl implements UserService {
             existingUser.get().setRole(u.getRole());
             existingUser.get().setCf(u.getCf());
 
+            log.info(" Update User ");
+
             userRepository.saveAndFlush(existingUser.get());
 
             return existingUser.get();
@@ -203,6 +231,8 @@ public class UserServiceImpl implements UserService {
 
         if(u.getIdUser() != null){
 
+            log.info(" Check if the Customer exists ");
+
             Optional<User> userFromId = userRepository.findByIdUser(u.getIdUser());
 
             if(userFromId.isPresent()){
@@ -213,23 +243,29 @@ public class UserServiceImpl implements UserService {
 
         }
 
+        log.info(" Check if the email of the Customer exists ");
+
         Optional<User> userFromEmail = userRepository.findByEmail(u.getEmail());
 
         if(userFromEmail.isPresent()){
 
-            throw new ResourceAlreadyExistingException("User", "email", u.getEmail());
+            throw new ResourceAlreadyExistingException("Customer", "email", u.getEmail());
 
         }
+
+        log.info(" Check if the fiscal code of the Customer exists ");
 
         Optional<User> userFromCf = userRepository.findByCf(u.getCf());
 
         if(userFromCf.isPresent()){
 
-            throw new ResourceAlreadyExistingException("User", "cf", u.getCf());
+            throw new ResourceAlreadyExistingException("Customer", "cf", u.getCf());
 
         }
 
         u.setRole(User.Role.CUSTOMER);
+
+        log.info(" Save the customer ");
 
         userRepository.saveAndFlush(u);
 
@@ -244,17 +280,21 @@ public class UserServiceImpl implements UserService {
     @Override
     public User updateCustomer(User u, Long id) {
 
+        log.info(" Check if the Customer exists ");
+
         Optional<User> existingUser = userRepository.findByIdUser(id);
 
         if(existingUser.isPresent()){
 
             if(!existingUser.get().getEmail().equals(u.getEmail())){
 
+                log.info(" Check if the email of the Customer exists ");
+
                 Optional<User> userFromEmail = userRepository.findByEmail(u.getEmail());
 
                 if(userFromEmail.isPresent()){
 
-                    throw new ResourceAlreadyExistingException("User", "email", u.getEmail());
+                    throw new ResourceAlreadyExistingException("Customer", "email", u.getEmail());
 
                 }
 
@@ -262,11 +302,13 @@ public class UserServiceImpl implements UserService {
 
             else if(!existingUser.get().getCf().equals(u.getCf())){
 
+                log.info(" Check if the fiscal code of the Customer exists ");
+
                 Optional<User> userFromCf = userRepository.findByCf(u.getCf());
 
                 if(userFromCf.isPresent()){
 
-                    throw new ResourceAlreadyExistingException("User", "cf", u.getCf());
+                    throw new ResourceAlreadyExistingException("Customer", "cf", u.getCf());
 
                 }
 
@@ -280,6 +322,8 @@ public class UserServiceImpl implements UserService {
             existingUser.get().setPassword(u.getPassword());
             existingUser.get().setRole(User.Role.CUSTOMER);
             existingUser.get().setCf(u.getCf());
+
+            log.info(" Update Customer ");
 
             userRepository.saveAndFlush(existingUser.get());
 
@@ -298,11 +342,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteCustomer(Long id) {
 
+        log.info(" Check if the Customer exists ");
+
         Optional<User> user = userRepository.findByIdUser(id);
 
         if(user.isPresent()){
 
             if(user.get().getRole().equals(User.Role.CUSTOMER)){
+
+                log.info(" Delete Customer ");
 
                 userRepository.delete(user.get());
 
@@ -335,12 +383,24 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> getUsersSortedBy(String field) {
 
-        List<User> results = userRepository.findAll(Sort.by(new ArrayList<>(
-                Arrays.asList(new Sort.Order(Sort.Direction.ASC, field), new Sort.Order(Sort.Direction.ASC, field))
-        )));
+        List<User> results = userRepository.findAll(
+                Sort.by(new ArrayList<>(Arrays.asList(new Sort.Order(Sort.Direction.ASC, field), new Sort.Order(Sort.Direction.ASC, field)))))
+                .stream()
+                .filter(x -> x.getRole().equals(User.Role.CUSTOMER))
+                .collect(Collectors.toList());
+
+        if(results.isEmpty()){
+
+           return null;
+
+        }
 
         return results;
+
     }
+
+
+
 
 
     /**
@@ -358,7 +418,19 @@ public class UserServiceImpl implements UserService {
         // will contain a list og objects of {(asc|desc), field1}, {(asc|desc), field2}, {(asc|desc), field3}, ...
         List<Sort.Order> sortOrders = getListSortOrders(order, fields);
 
-        return userRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(sortOrders)));
+        List<User> sortedPagingUsers = userRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(sortOrders)))
+                .stream()
+                .filter(x -> x.getRole().equals(User.Role.CUSTOMER))
+                .collect(Collectors.toList());
+
+        if(sortedPagingUsers.isEmpty()){
+
+            return null;
+
+        }
+
+        return new PageImpl<>(sortedPagingUsers);
+
     }
 
 
@@ -375,6 +447,8 @@ public class UserServiceImpl implements UserService {
             return null;
 
         }
+
+        log.info("Return Customers");
 
         return customers;
 
@@ -394,6 +468,12 @@ public class UserServiceImpl implements UserService {
                 .limit(pageSize)
                 .collect(Collectors.toList());
 
+        if(customers.isEmpty()){
+
+            return null;
+
+        }
+
         return customers;
     }
 
@@ -405,21 +485,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> findAllCustomersByName(String name) {
 
-        try{
-            List<User> customersByName = userRepository.findByName(name)
-                    .stream()
-                    .filter(x -> x.getRole().equals(User.Role.CUSTOMER))
-                    .collect(Collectors.toList());
+        List<User> customersByName = userRepository.findByName(name)
+                .stream()
+                .filter(x -> x.getRole().equals(User.Role.CUSTOMER))
+                .collect(Collectors.toList());
 
-            return customersByName;
-
-        }catch (Exception e){
-
-            e.printStackTrace();
-
-        }
-
-        return null;
+        return customersByName;
 
     }
 
@@ -431,21 +502,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> findAllCustomersBySurname(String surname) {
 
-        try{
-            List<User> customersBySurname = userRepository.findBySurname(surname)
-                    .stream()
-                    .filter(x -> x.getRole().equals(User.Role.CUSTOMER))
-                    .collect(Collectors.toList());
 
-            return customersBySurname;
+        List<User> customersBySurname = userRepository.findBySurname(surname)
+                .stream()
+                .filter(x -> x.getRole().equals(User.Role.CUSTOMER))
+                .collect(Collectors.toList());
 
-        }catch (Exception e){
+        return customersBySurname;
 
-            e.printStackTrace();
 
-        }
-
-        return null;
 
     }
 
@@ -483,29 +548,21 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findCustomerByEmail(String email) {
 
-        try{
-            Optional<User> customerByEmail = userRepository.findByEmail(email);
 
-            if (customerByEmail.isPresent()) {
+        Optional<User> customerByEmail = userRepository.findByEmail(email);
 
-                if (customerByEmail.get().getRole().equals(User.Role.CUSTOMER)) {
+        if (customerByEmail.isPresent()) {
 
-                    return customerByEmail.get();
+            if (customerByEmail.get().getRole().equals(User.Role.CUSTOMER)) {
 
-                }
+                return customerByEmail.get();
 
             }
 
-            return null;
-
-
-        }catch (Exception e){
-
-            e.printStackTrace();
-
-            return null;
-
         }
+
+        throw new ResourceNotFoundException("Customer", "email", email);
+
 
     }
 
@@ -528,7 +585,7 @@ public class UserServiceImpl implements UserService {
 
         }
 
-        return null;
+        throw new ResourceNotFoundException("Customer", "cf", cf);
 
     }
 
@@ -582,7 +639,7 @@ public class UserServiceImpl implements UserService {
                     return results;
                 }
 
-                throw  new ResourceNotFoundException("User", "name", value);
+                throw  new ResourceNotFoundException("Customers", "name", value);
 
             case "surname":
 
@@ -597,18 +654,18 @@ public class UserServiceImpl implements UserService {
                     return results;
                 }
 
-                throw  new ResourceNotFoundException("User", "surname", value);
+                throw  new ResourceNotFoundException("Customers", "surname", value);
 
             case "cf":
 
                 u = userRepository.findByCf(value);
 
                 if(u.isEmpty()){
-                    throw new ResourceNotFoundException("User", "cf", value);
+                    throw new ResourceNotFoundException("Customer", "cf", value);
                 }
 
                 else if(!u.get().getRole().equals(User.Role.CUSTOMER)){
-                    throw new ResourceNotFoundException("User", "id", value);
+                    throw new ResourceNotFoundException("Customer", "id", value);
                 }
 
                 results.add(u.get());
@@ -620,11 +677,11 @@ public class UserServiceImpl implements UserService {
                 u = userRepository.findByEmail(value);
 
                 if(u.isEmpty()){
-                    throw new ResourceNotFoundException("User", "email", value);
+                    throw new ResourceNotFoundException("Customer", "email", value);
                 }
 
                 else if(!u.get().getRole().equals(User.Role.CUSTOMER)){
-                    throw new ResourceNotFoundException("User", "id", value);
+                    throw new ResourceNotFoundException("Customer", "id", value);
                 }
 
                 results.add(u.get());
@@ -646,11 +703,11 @@ public class UserServiceImpl implements UserService {
                     return results;
                 }
 
-                throw  new ResourceNotFoundException("User", "birthDate", value);
+                throw  new ResourceNotFoundException("Customer", "birthDate", value);
 
             default:
 
-                return results;
+                return null;
 
         }
 
@@ -672,11 +729,11 @@ public class UserServiceImpl implements UserService {
                 u = userRepository.findByIdUser(Long.parseLong(value));
 
                 if(u.isEmpty()){
-                    throw new ResourceNotFoundException("User", "id", value);
+                    throw new ResourceNotFoundException("Customer", "id", value);
                 }
 
                 else if(!u.get().getRole().equals(User.Role.CUSTOMER)){
-                    throw new ResourceNotFoundException("User", "id", value);
+                    throw new ResourceNotFoundException("Customer", "id", value);
                 }
 
                 results.add(u.get());
@@ -696,7 +753,7 @@ public class UserServiceImpl implements UserService {
                     return results;
                 }
 
-                throw  new ResourceNotFoundException("User", "name", value);
+                throw  new ResourceNotFoundException("Customers", "name", value);
 
             case "surname":
 
@@ -711,18 +768,18 @@ public class UserServiceImpl implements UserService {
                     return results;
                 }
 
-                throw  new ResourceNotFoundException("User", "surname", value);
+                throw  new ResourceNotFoundException("Customers", "surname", value);
 
             case "cf":
 
                 u = userRepository.findByCf(value);
 
                 if(u.isEmpty()){
-                    throw new ResourceNotFoundException("User", "cf", value);
+                    throw new ResourceNotFoundException("Customer", "cf", value);
                 }
 
                 else if(!u.get().getRole().equals(User.Role.CUSTOMER)){
-                    throw new ResourceNotFoundException("User", "id", value);
+                    throw new ResourceNotFoundException("Customer", "id", value);
                 }
 
                 results.add(u.get());
@@ -734,11 +791,11 @@ public class UserServiceImpl implements UserService {
                 u = userRepository.findByEmail(value);
 
                 if(u.isEmpty()){
-                    throw new ResourceNotFoundException("User", "email", value);
+                    throw new ResourceNotFoundException("Customer", "email", value);
                 }
 
                 else if(!u.get().getRole().equals(User.Role.CUSTOMER)){
-                    throw new ResourceNotFoundException("User", "id", value);
+                    throw new ResourceNotFoundException("Customer", "id", value);
                 }
 
                 results.add(u.get());
@@ -760,11 +817,11 @@ public class UserServiceImpl implements UserService {
                     return results;
                 }
 
-                throw  new ResourceNotFoundException("User", "birthDate", value);
+                throw  new ResourceNotFoundException("Customers", "birthDate", value);
 
             default:
 
-                return results;
+                return null;
 
         }
 
@@ -777,25 +834,19 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserByEmail(String email) {
 
-        try{
+        log.info(" Check if the email of the User exists ");
 
-            Optional<User> u = userRepository.findByEmail(email);
+        Optional<User> u = userRepository.findByEmail(email);
 
-            if (u.isEmpty()) {
-
-                return null;
-
-            }
-
-            return u.get();
-
-        }catch (Exception e){
-
-            e.printStackTrace();
+        if (u.isEmpty()) {
 
             return null;
 
         }
+
+        log.info("Return User");
+
+        return u.get();
 
     }
 
@@ -806,21 +857,24 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getCustomer(Long id) {
 
+        log.info(" Check if the Customer exists ");
+
         Optional<User> customer = userRepository.findByIdUser(id);
 
         if(customer.isPresent()){
 
             if(customer.get().getRole().equals(User.Role.CUSTOMER)){
 
+                log.info("Return Customer");
+
                 return customer.get();
 
             }
 
-            else throw new ResourceNotFoundException("Customer", "id", id);
-
         }
 
-        else throw new ResourceNotFoundException("Customer", "id", id);
+        throw new ResourceNotFoundException("Customer", "id", id);
+
     }
 
 
@@ -859,7 +913,31 @@ public class UserServiceImpl implements UserService {
 
 
 
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
+        Optional<User> u = userRepository.findByEmail(email);
 
+        if(u.isEmpty()){
 
+            log.error("User with email {} not found", email);
+
+            throw new UsernameNotFoundException("User not found in the database");
+
+        }
+        else{
+
+            log.info("User with email {} found", email);
+
+        }
+
+        // Collection with Roles inside
+        Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+
+        // adding the Role of this User
+        authorities.add(new SimpleGrantedAuthority(u.get().getRole().toString()));
+
+        // Object User from the Spring Framework and not from this application
+        return new org.springframework.security.core.userdetails.User(u.get().getEmail(), u.get().getPassword(), authorities);
+    }
 }

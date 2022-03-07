@@ -13,8 +13,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@AllArgsConstructor
-@NoArgsConstructor
+@RequiredArgsConstructor
 @Table(name = "bookings")
 public class Booking implements Serializable {
 
@@ -37,13 +36,13 @@ public class Booking implements Serializable {
     @Column(name = "approval")
     private boolean approval;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vehicle_id", referencedColumnName = "id")
     @JsonBackReference(value = "vehicle_bookings")
     @ToString.Exclude
     private Vehicle vehicle;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @ToString.Exclude
     @JsonBackReference(value = "user_bookings")

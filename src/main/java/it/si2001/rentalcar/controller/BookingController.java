@@ -7,7 +7,6 @@ import it.si2001.rentalcar.exception.CustomException;
 import it.si2001.rentalcar.exception.ResourceAlreadyExistingException;
 import it.si2001.rentalcar.exception.ResourceNotFoundException;
 import it.si2001.rentalcar.service.BookingService;
-import it.si2001.rentalcar.service.PrettyLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin
+//@CrossOrigin
 @RequestMapping("/bookings")
 public class BookingController {
 
@@ -41,11 +40,13 @@ public class BookingController {
 
         try{
 
-            logger.info("***** Fetch all bookings *****");
+            logger.info("***** Try to fetch all bookings *****");
 
             List<Booking> bookings = bookingService.getAllBookings();
 
             if (bookings == null) {
+
+                logger.error("***** No Bookings found *****");
 
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
@@ -70,7 +71,7 @@ public class BookingController {
 
         try{
 
-            logger.info("***** Fetch booking with id "+id+" *****");
+            logger.info("***** Try fetch booking with id "+id+" *****");
 
             Booking booking = bookingService.getBooking(id);
 
@@ -103,7 +104,7 @@ public class BookingController {
 
         try{
 
-            logger.info("***** Insert Booking *****");
+            logger.info("***** Try to insert Booking *****");
 
             bookingService.insertBooking(b);
 
@@ -152,7 +153,7 @@ public class BookingController {
 
         try{
 
-            logger.info("***** Update Booking *****");
+            logger.info("***** Try to update Booking *****");
 
             Booking bookingUpdated = bookingService.updateBooking(b, id);
 
@@ -194,7 +195,7 @@ public class BookingController {
 
         try{
 
-            logger.info("***** Delete booking *****");
+            logger.info("***** Try to delete booking *****");
 
             bookingService.deleteBooking(id);
 

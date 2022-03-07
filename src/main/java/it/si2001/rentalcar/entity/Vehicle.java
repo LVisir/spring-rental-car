@@ -18,8 +18,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@AllArgsConstructor
-@NoArgsConstructor
+@RequiredArgsConstructor
 @Table(name = "vehicles")
 @JsonIgnoreProperties({"vehicleBookings"})
 public class Vehicle implements Serializable {

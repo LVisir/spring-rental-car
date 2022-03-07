@@ -11,7 +11,7 @@ import it.si2001.rentalcar.repository.BookingRepository;
 import it.si2001.rentalcar.repository.UserRepository;
 import it.si2001.rentalcar.repository.VehicleRepository;
 import it.si2001.rentalcar.service.BookingService;
-import it.si2001.rentalcar.service.PrettyLogger;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@Slf4j
 public class BookingServiceImpl implements BookingService {
 
     @Autowired
@@ -53,6 +54,8 @@ public class BookingServiceImpl implements BookingService {
 
         }
 
+        log.info("Return Bookings");
+
         return bookings;
 
     }
@@ -64,9 +67,13 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Booking getBooking(Long id) {
 
+        log.info(" Check if the Booking exists ");
+
         Optional<Booking> booking = bookingRepository.findById(id);
 
         if(booking.isPresent()){
+
+            log.info(" Return Booking ");
 
             return booking.get();
 
@@ -86,12 +93,16 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public void checkInsertUpdateConstraint(Booking b) {
 
+        log.info(" Checking if the Booking of the Vehicle and the Booking for the Customer exists ");
+
         Optional<Vehicle> vehicle = vehicleRepository.findByIdVehicle(b.getVehicle().getIdVehicle());
 
         Optional<User> user = userRepository.findByIdUser(b.getUser().getIdUser());
 
         if(vehicle.isPresent()){
             if(user.isPresent()){
+
+                log.info(" Checking date constraint ");
 
                 if(vehicle.get().getRegistrYear().compareTo(b.getStart()) >= 0){
 
@@ -103,6 +114,8 @@ public class BookingServiceImpl implements BookingService {
                     throw new CustomException("The start date of the booking is higher or equal to the end date");
 
                 }
+
+                log.info(" Fetch all the Bookings of the User to check if he has not Booking under approval or Booking of the same period ");
 
                 List<Booking> bookingsOfUser = bookingRepository.findAll()
                         .stream()
@@ -127,6 +140,8 @@ public class BookingServiceImpl implements BookingService {
                     }
 
                 }
+
+                log.info(" Fetch all the Bookings of the Vehicle to check if it has not Booking of the same period ");
 
                 List<Booking> bookingsOfVehicle = bookingRepository.findAll()
                         .stream()
@@ -164,6 +179,8 @@ public class BookingServiceImpl implements BookingService {
 
         if(b.getIdBooking() != null){
 
+            log.info(" Check if this Booking doesn't exists ");
+
             Optional<Booking> booking = bookingRepository.findById(b.getIdBooking());
 
             if(booking.isPresent()){
@@ -175,6 +192,8 @@ public class BookingServiceImpl implements BookingService {
         }
 
         checkInsertUpdateConstraint(b);
+
+        log.info(" Save the Booking ");
 
         bookingRepository.saveAndFlush(b);
 
@@ -188,9 +207,13 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public void deleteBooking(Long id) {
 
+        log.info(" Check if the booking exists ");
+
         Optional<Booking> booking = bookingRepository.findById(id);
 
         if(booking.isPresent()){
+
+            log.info(" Delete Booking ");
 
             bookingRepository.delete(booking.get());
 
@@ -206,22 +229,21 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Booking updateBooking(Booking b, Long id) {
 
+        log.info(" Check if the Booking exists ");
+
         Optional<Booking> booking = bookingRepository.findById(id);
 
         if(booking.isPresent()){
 
-            if(!b.getIdBooking().equals(id)){
-
-                throw new CustomException("The id is not valid");
-
-            }
+            booking.get().setIdBooking(b.getIdBooking());
 
             checkInsertUpdateConstraint(b);
 
-            booking.get().setIdBooking(b.getIdBooking());
             booking.get().setApproval(b.isApproval());
             booking.get().setStart(b.getStart());
             booking.get().setEnd(b.getEnd());
+
+            log.info(" Update the Booking ");
 
             bookingRepository.saveAndFlush(booking.get());
 

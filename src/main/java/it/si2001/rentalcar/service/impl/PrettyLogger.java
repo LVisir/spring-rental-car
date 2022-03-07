@@ -1,4 +1,4 @@
-package it.si2001.rentalcar.service;
+package it.si2001.rentalcar.service.impl;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.slf4j.Logger;
