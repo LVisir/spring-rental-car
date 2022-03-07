@@ -7,6 +7,7 @@ import lombok.*;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
+import javax.validation.constraints.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -34,26 +35,38 @@ public class User implements Serializable {
     private Long idUser;
 
     @Column(name = "name")
+    @NotEmpty
+    @Size(min = 3, message = "The name must have at least three characters")
     private String name;
 
     @Column(name = "surname")
+    @NotEmpty
+    @Size(min = 3, message = "The surname must have at least three characters")
     private String surname;
 
     @Column(name = "cf", unique = true)
+    @NotEmpty
+    @Size(min = 5, max = 5, message = "The fiscal code must have at least 5 characters")
     private String cf;
 
     @Column(name = "birth_date")
     @Temporal(TemporalType.DATE)
+    @NotNull
     private Date birthDate;
 
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
+    @NotNull
     private Role role;
 
     @Column(name = "email", unique = true)
+    @NotEmpty
+    @Email(message = "Must be an email with a correct format")
     private String email;
 
     @Column(name = "password")
+    @NotEmpty
+    @Size(min = 5, message = "The password must have at least 5 characters")
     private String password;
 
     // FetchType.LAZY works only if you use @JsonIgnoreProperties({"userBookings"}) because by ignoring the JSON properties Spring will listen the FetchType

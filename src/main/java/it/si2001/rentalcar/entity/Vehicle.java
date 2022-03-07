@@ -7,6 +7,9 @@ import lombok.*;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -34,20 +37,28 @@ public class Vehicle implements Serializable {
     private Long idVehicle;
 
     @Column(name = "license_plate", unique = true)
+    @NotEmpty
+    @Size(min = 5, max = 5, message = "The licence plate must have at least five characters")
     private String licensePlate;
 
     @Column(name = "manufacturer")
+    @NotEmpty
+    @Size(min = 5, max = 5, message = "The manufacturer must have at least five characters")
     private String manufacturer;
 
     @Column(name = "model")
+    @NotEmpty
+    @Size(min = 5, max = 5, message = "The model must have at least five characters")
     private String model;
 
     @Column(name = "registr_year")
     @Temporal(TemporalType.DATE)
+    @NotNull
     private Date registrYear;
 
     @Column(name = "typology")
     @Enumerated(EnumType.STRING)
+    @NotNull
     private Typology typology;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "vehicle")

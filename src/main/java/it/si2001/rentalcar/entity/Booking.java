@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
 import org.hibernate.Hibernate;
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
@@ -27,13 +28,16 @@ public class Booking implements Serializable {
 
     @Column(name = "start")
     @Temporal(TemporalType.DATE)
+    @NotNull
     private Date start;
 
     @Column(name = "end")
     @Temporal(TemporalType.DATE)
+    @NotNull
     private Date end;
 
     @Column(name = "approval")
+    @NotNull
     private boolean approval;
 
     @ManyToOne(fetch = FetchType.LAZY)
