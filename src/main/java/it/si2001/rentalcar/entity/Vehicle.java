@@ -1,5 +1,6 @@
 package it.si2001.rentalcar.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -38,22 +39,23 @@ public class Vehicle implements Serializable {
 
     @Column(name = "license_plate", unique = true)
     @NotEmpty
-    @Size(min = 5, max = 5, message = "The licence plate must have at least five characters")
+    @Size(min = 5, max = 5, message = "The licence plate must have exactly five characters")
     private String licensePlate;
 
     @Column(name = "manufacturer")
     @NotEmpty
-    @Size(min = 5, max = 5, message = "The manufacturer must have at least five characters")
+    @Size(min = 5, max = 50, message = "The manufacturer must have at least five characters and at most 50")
     private String manufacturer;
 
     @Column(name = "model")
     @NotEmpty
-    @Size(min = 5, max = 5, message = "The model must have at least five characters")
+    @Size(min = 5, max = 50, message = "The model must have at least five characters and at most 50")
     private String model;
 
     @Column(name = "registr_year")
     @Temporal(TemporalType.DATE)
     @NotNull
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private Date registrYear;
 
     @Column(name = "typology")

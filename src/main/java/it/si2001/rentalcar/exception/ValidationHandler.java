@@ -1,6 +1,5 @@
-package it.si2001.rentalcar.controller;
+package it.si2001.rentalcar.exception;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

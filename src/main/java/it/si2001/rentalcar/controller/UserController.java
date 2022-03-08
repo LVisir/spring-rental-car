@@ -142,7 +142,7 @@ public class UserController {
 
 
     @PostMapping(value = "/customers/add")
-    public ResponseEntity<?> insertCustomer(@RequestBody User u){    // @RequestBody it takes a JSON format
+    public ResponseEntity<?> insertCustomer(@Valid @RequestBody User u){    // @RequestBody it takes a JSON format
 
         try{
 
@@ -242,7 +242,7 @@ public class UserController {
 
 
     @PutMapping(value = "/update/{id}")
-    public ResponseEntity<?> updateUser(@RequestBody User u, @PathVariable("id") Long id){
+    public ResponseEntity<?> updateUser(@Valid @RequestBody User u, @PathVariable("id") Long id){
 
         try{
 
@@ -283,7 +283,7 @@ public class UserController {
 
 
     @PutMapping(value = "/customers/update/{id}")
-    public ResponseEntity<?> updateCustomer(@RequestBody User u, @PathVariable("id") Long id){
+    public ResponseEntity<?> updateCustomer(@Valid @RequestBody User u, @PathVariable("id") Long id){
 
         try{
 
@@ -461,14 +461,18 @@ public class UserController {
 
             logger.error("***** User with email "+email+" not found *****");
 
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User with email "+email+" not found");
+            responseNode.put("error", "User with email "+email+" not found");
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseNode);
 
         }
         catch (Exception e){
 
             logger.error("Users: Exception thrown: {}", e.getMessage());
 
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
+            responseNode.put("error", "Server error");
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseNode);
 
         }
 

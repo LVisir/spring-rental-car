@@ -14,10 +14,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-//@CrossOrigin
 @RequestMapping("/bookings")
 public class BookingController {
 
@@ -100,7 +100,7 @@ public class BookingController {
 
 
     @PostMapping(value = "/add")
-    public ResponseEntity<?> insertBooking(@RequestBody Booking b){
+    public ResponseEntity<?> insertBooking(@Valid @RequestBody Booking b){
 
         try{
 
@@ -149,7 +149,7 @@ public class BookingController {
 
 
     @PutMapping(value = "/update/{id}")
-    public ResponseEntity<?> updateBooking(@PathVariable("id") Long id, @RequestBody Booking b){
+    public ResponseEntity<?> updateBooking(@Valid @RequestBody Booking b, @PathVariable("id") Long id){
 
         try{
 

@@ -1,6 +1,7 @@
 package it.si2001.rentalcar.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.hibernate.Hibernate;
 import javax.persistence.*;
@@ -29,11 +30,13 @@ public class Booking implements Serializable {
     @Column(name = "start")
     @Temporal(TemporalType.DATE)
     @NotNull
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private Date start;
 
     @Column(name = "end")
     @Temporal(TemporalType.DATE)
     @NotNull
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private Date end;
 
     @Column(name = "approval")

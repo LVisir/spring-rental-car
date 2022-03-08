@@ -34,7 +34,12 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter { // OncePer
         // it will not intercept the request to this path because it means the user is trying to log in and in this place everyone can try to log in
         if(request.getServletPath().equals("/login")) {
 
-            // dont' do anything, let the request go through
+            response.setHeader("Access-Control-Allow-Origin", "*");
+            response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+            response.setHeader("Access-Control-Max-Age", "3600");
+            response.setHeader("Access-Control-Allow-Headers", "authorization, content-type, xsrf-token");
+
+            // don't do anything, let the request go through
             filterChain.doFilter(request, response);
 
         }

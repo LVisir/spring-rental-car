@@ -1,5 +1,6 @@
 package it.si2001.rentalcar.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -36,22 +37,23 @@ public class User implements Serializable {
 
     @Column(name = "name")
     @NotEmpty
-    @Size(min = 3, message = "The name must have at least three characters")
+    @Size(min = 3, max = 50, message = "The name must have at least three characters and at most 50")
     private String name;
 
     @Column(name = "surname")
     @NotEmpty
-    @Size(min = 3, message = "The surname must have at least three characters")
+    @Size(min = 3, max = 50, message = "The surname must have at least three characters and at most 50")
     private String surname;
 
     @Column(name = "cf", unique = true)
     @NotEmpty
-    @Size(min = 5, max = 5, message = "The fiscal code must have at least 5 characters")
+    @Size(min = 5, max = 5, message = "The fiscal code must have exactly 5 characters")
     private String cf;
 
     @Column(name = "birth_date")
     @Temporal(TemporalType.DATE)
     @NotNull
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private Date birthDate;
 
     @Column(name = "role")
@@ -62,11 +64,12 @@ public class User implements Serializable {
     @Column(name = "email", unique = true)
     @NotEmpty
     @Email(message = "Must be an email with a correct format")
+    @Size(max = 50, message = "The email must have less than 50 characters")
     private String email;
 
     @Column(name = "password")
     @NotEmpty
-    @Size(min = 5, message = "The password must have at least 5 characters")
+    @Size(min = 5, max = 50, message = "The password must have at least 5 characters and at most 50")
     private String password;
 
     // FetchType.LAZY works only if you use @JsonIgnoreProperties({"userBookings"}) because by ignoring the JSON properties Spring will listen the FetchType

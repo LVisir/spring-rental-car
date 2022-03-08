@@ -48,7 +48,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(STATELESS);
 
+        http.cors();
+
         // REMEMBER: THE ORDER MATTERS! Do it from the smaller to the bigger
+        http.authorizeRequests().antMatchers("/login/**").permitAll();
+
         http.authorizeRequests().antMatchers(GET, "/users").hasAnyAuthority("SUPERUSER");
         http.authorizeRequests().antMatchers(GET, "/users/**").hasAnyAuthority("SUPERUSER");
         http.authorizeRequests().antMatchers(POST, "/users/**").hasAnyAuthority("SUPERUSER");
@@ -61,11 +65,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers(PUT, "/bookings/update/*").hasAnyAuthority("SUPERUSER", "CUSTOMER");
         http.authorizeRequests().antMatchers(DELETE, "/bookings/delete/*").hasAnyAuthority("SUPERUSER", "CUSTOMER");
 
-        http.authorizeRequests().antMatchers(GET, "/vehicles","/vehicles/*").hasAnyAuthority( "SUPERUSER");
+        http.authorizeRequests().antMatchers(GET, "/vehicles","/vehicles/*").hasAnyAuthority( "SUPERUSER", "CUSTOMER");
         http.authorizeRequests().antMatchers(POST, "/vehicles/add").hasAnyAuthority("SUPERUSER");
         http.authorizeRequests().antMatchers(DELETE, "/vehicles/delete/*").hasAnyAuthority("SUPERUSER");
         http.authorizeRequests().antMatchers(PUT, "/vehicles/update/*").hasAnyAuthority("SUPERUSER");
-        http.authorizeRequests().antMatchers(GET, "/vehicles").hasAnyAuthority("CUSTOMER");
+        http.authorizeRequests().antMatchers(GET, "/vehicles/*").hasAnyAuthority( "SUPERUSER");
 
         // this filter come before all others filter
         http.addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
@@ -84,5 +88,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public AuthenticationManager authenticationManagerBean() throws Exception{
         return super.authenticationManager();
     }
+
 
 }

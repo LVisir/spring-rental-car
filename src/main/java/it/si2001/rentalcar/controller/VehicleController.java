@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -100,7 +101,7 @@ public class VehicleController {
 
 
     @PutMapping(value = "/update/{id}", produces = "application/json")
-    public ResponseEntity<?> updateVehicle(@RequestBody Vehicle v, @PathVariable("id") Long id){
+    public ResponseEntity<?> updateVehicle(@Valid @RequestBody Vehicle v, @PathVariable("id") Long id){
 
         try{
 
@@ -175,7 +176,7 @@ public class VehicleController {
 
 
     @PostMapping(value = "/add", produces = "application/json")
-    public ResponseEntity<?> addVehicle(@RequestBody Vehicle v){
+    public ResponseEntity<?> addVehicle(@Valid @RequestBody Vehicle v){
 
         try{
 
