@@ -30,13 +30,13 @@ public class Booking implements Serializable {
     @Column(name = "start")
     @Temporal(TemporalType.DATE)
     @NotNull
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date start;
 
     @Column(name = "end")
     @Temporal(TemporalType.DATE)
     @NotNull
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date end;
 
     @Column(name = "approval")
