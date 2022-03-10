@@ -237,6 +237,8 @@ public class BookingServiceImpl implements BookingService {
 
             booking.get().setIdBooking(b.getIdBooking());
 
+            log.info("inside updateBooking id "+b.getIdBooking());
+
             checkInsertUpdateConstraint(b);
 
             booking.get().setApproval(b.isApproval());

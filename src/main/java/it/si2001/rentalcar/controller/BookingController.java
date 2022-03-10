@@ -153,6 +153,9 @@ public class BookingController {
 
         try{
 
+            logger.info("booking id "+b.getIdBooking());
+            logger.info("id "+id);
+
             logger.info("***** Try to update Booking *****");
 
             Booking bookingUpdated = bookingService.updateBooking(b, id);

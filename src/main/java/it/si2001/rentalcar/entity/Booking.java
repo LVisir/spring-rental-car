@@ -43,16 +43,16 @@ public class Booking implements Serializable {
     @NotNull
     private boolean approval;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "vehicle_id", referencedColumnName = "id")
-    @JsonBackReference(value = "vehicle_bookings")
+    //@JsonBackReference(value = "vehicle_bookings")
     @ToString.Exclude
     private Vehicle vehicle;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @ToString.Exclude
-    @JsonBackReference(value = "user_bookings")
+    //@JsonBackReference(value = "user_bookings")
     private User user;
 
     @Override
