@@ -231,8 +231,6 @@ public class VehicleServiceImpl implements VehicleService {
 
             if(lastDateBookings.isPresent()){
 
-                log.info("LAST DATE {}", lastDateBookings.get().getEnd());
-
                 // checking if the date of the booking is lower than today
                 if(lastDateBookings.get().getEnd().compareTo(new Date()) < 0){
                     return new Date();
