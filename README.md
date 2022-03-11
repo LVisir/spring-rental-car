@@ -4,4 +4,6 @@
 
 Spring Security: Done.
 
-Next step: Spring validation.
+Spring Validation: Done.
+
+Next-step: adding little new functions in the business logic.
