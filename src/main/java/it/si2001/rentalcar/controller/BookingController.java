@@ -153,9 +153,6 @@ public class BookingController {
 
         try{
 
-            logger.info("booking id "+b.getIdBooking());
-            logger.info("id "+id);
-
             logger.info("***** Try to update Booking *****");
 
             Booking bookingUpdated = bookingService.updateBooking(b, id);
@@ -215,6 +212,31 @@ public class BookingController {
 
         }
         catch (Exception e){
+
+            return bookingService.manageExceptions(e, logger, responseNode);
+
+        }
+
+    }
+
+    @GetMapping(value = "/customer/{id}", produces = "application/json")
+    public ResponseEntity<?> getBookingsOfUser(@PathVariable("id") Long id){
+
+        try{
+
+            logger.info("***** Try to fetch the Bookings of the User with id "+id);
+
+            List<Booking> bookings = bookingService.getAllBookingsFromUser(id);
+
+            if(bookings == null){
+
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+            }
+
+            return new ResponseEntity<>(bookings, HttpStatus.OK);
+
+        }catch (Exception e){
 
             return bookingService.manageExceptions(e, logger, responseNode);
 

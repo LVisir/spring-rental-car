@@ -65,6 +65,25 @@ public class BookingServiceImpl implements BookingService {
 
 
     @Override
+    public List<Booking> getAllBookingsFromUser(Long id) {
+
+        log.info(" Getting the Bookings of the User of id {}", id);
+
+        List<Booking> bookings = bookingRepository.findAll()
+                .stream()
+                .filter(x -> x.getUser().getIdUser().equals(id))
+                .collect(Collectors.toList());
+
+        if(bookings.isEmpty()){
+            return null;
+        }
+
+        return bookings;
+
+    }
+
+
+    @Override
     public Booking getBooking(Long id) {
 
         log.info(" Check if the Booking exists ");
@@ -236,8 +255,6 @@ public class BookingServiceImpl implements BookingService {
         if(booking.isPresent()){
 
             booking.get().setIdBooking(b.getIdBooking());
-
-            log.info("inside updateBooking id "+b.getIdBooking());
 
             checkInsertUpdateConstraint(b);
 

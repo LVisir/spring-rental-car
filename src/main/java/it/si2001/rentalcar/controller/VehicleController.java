@@ -14,7 +14,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 //@CrossOrigin
@@ -194,6 +198,53 @@ public class VehicleController {
             responseNode.put("error", e.getMessage());
 
             return new ResponseEntity<>(responseNode, HttpStatus.NO_CONTENT);
+
+        }
+        catch (Exception e) {
+
+            return vehicleService.manageExceptions(e, logger, responseNode);
+
+        }
+
+    }
+
+
+
+
+
+    @GetMapping(value = "/lastBooking/{id}", produces = "application/json")
+    public ResponseEntity<?> getLastBookingDateOfVehicle(@PathVariable("id") Long id){
+
+        try{
+
+            logger.info("***** Try to get the last Booking Date of the Vehicle with id "+ id+ " *****");
+
+            Date lastDate = vehicleService.getFirstAvailableBookingDay(id);
+
+            Map<String, String> dates = new HashMap<>();
+
+            //adding a day to the last date returned
+            Date nextDay = new Date(lastDate.getTime() + (1000 * 60 * 60 * 24));
+
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+
+            dates.put("startDate", df.format(nextDay));
+
+            //adding a day to the next date calculated
+            Date nextNextDay = new Date(nextDay.getTime() + (1000 * 60 * 60 * 24));
+
+            dates.put("endDate", df.format(nextNextDay));
+
+            return new ResponseEntity<>(dates, HttpStatus.OK);
+
+        }
+        catch (ResourceNotFoundException e){
+
+            logger.error("***** "+e.getMessage()+" *****");
+
+            responseNode.put("error", e.getMessage());
+
+            return new ResponseEntity<>(responseNode, HttpStatus.NOT_FOUND);
 
         }
         catch (Exception e) {

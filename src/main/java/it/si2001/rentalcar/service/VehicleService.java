@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
+import java.util.Date;
 import java.util.List;
 
 public interface VehicleService {
@@ -21,5 +22,7 @@ public interface VehicleService {
     List<Vehicle> fetchVehicles();
 
     ResponseEntity<ObjectNode> manageExceptions(Exception e, Logger logger, ObjectNode responseNode);
+
+    Date getFirstAvailableBookingDay(Long id);
 
 }

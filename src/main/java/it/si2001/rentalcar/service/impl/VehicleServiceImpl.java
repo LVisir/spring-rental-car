@@ -1,9 +1,11 @@
 package it.si2001.rentalcar.service.impl;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import it.si2001.rentalcar.entity.Booking;
 import it.si2001.rentalcar.entity.Vehicle;
 import it.si2001.rentalcar.exception.ResourceAlreadyExistingException;
 import it.si2001.rentalcar.exception.ResourceNotFoundException;
+import it.si2001.rentalcar.repository.BookingRepository;
 import it.si2001.rentalcar.repository.VehicleRepository;
 import it.si2001.rentalcar.service.VehicleService;
 import lombok.extern.slf4j.Slf4j;
@@ -13,8 +15,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -23,6 +28,9 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Autowired
     VehicleRepository vehicleRepository;
+
+    @Autowired
+    BookingRepository bookingRepository;
 
     @Autowired
     PrettyLogger prettyLogger;
@@ -194,6 +202,54 @@ public class VehicleServiceImpl implements VehicleService {
 
         return prettyLogger.prettyException(e, logger, responseNode);
 
+    }
+
+
+
+
+
+    /**
+     *
+     * @param id: id of a Vehicle
+     * @return the last Booking date of a Vehicle given in input
+     */
+    @Override
+    public Date getFirstAvailableBookingDay(Long id) {
+
+        log.info("Check if the Vehicle with id {} exista", id);
+
+        Optional<Vehicle> vehicle = vehicleRepository.findByIdVehicle(id);
+
+        if(vehicle.isPresent()){
+
+            log.info("Getting the last Booking for the Vehicle with id {}", id);
+
+            Optional<Booking> lastDateBookings = bookingRepository.findAll()
+                    .stream()
+                    .filter(x -> x.getVehicle().getIdVehicle().equals(id))
+                    .max(Comparator.comparing(Booking::getEnd));
+
+            if(lastDateBookings.isPresent()){
+
+                log.info("LAST DATE {}", lastDateBookings.get().getEnd());
+
+                // checking if the date of the booking is lower than today
+                if(lastDateBookings.get().getEnd().compareTo(new Date()) < 0){
+                    return new Date();
+                }
+                else{
+                    return lastDateBookings.get().getEnd();
+                }
+
+            }
+
+            else{
+                return new Date();
+            }
+
+        }
+
+        throw new ResourceNotFoundException("Vehicle", "id", id);
     }
 
 }

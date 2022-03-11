@@ -54,7 +54,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers("/login/**").permitAll();
 
         http.authorizeRequests().antMatchers(GET, "/users").hasAnyAuthority("SUPERUSER");
-        http.authorizeRequests().antMatchers(GET, "/users/**").hasAnyAuthority("SUPERUSER");
+        http.authorizeRequests().antMatchers(GET, "/users/customers/**").hasAnyAuthority("SUPERUSER");
+        http.authorizeRequests().antMatchers(GET, "/users/email/*").hasAnyAuthority("SUPERUSER", "CUSTOMER");
+        http.authorizeRequests().antMatchers(GET, "/users/*").hasAnyAuthority("SUPERUSER");
         http.authorizeRequests().antMatchers(POST, "/users/**").hasAnyAuthority("SUPERUSER");
         http.authorizeRequests().antMatchers(PUT, "/users/**").hasAnyAuthority("SUPERUSER");
         http.authorizeRequests().antMatchers(DELETE, "/users/**").hasAnyAuthority("SUPERUSER");
@@ -64,12 +66,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers(POST, "/bookings/add").hasAnyAuthority("SUPERUSER", "CUSTOMER");
         http.authorizeRequests().antMatchers(PUT, "/bookings/update/*").hasAnyAuthority("SUPERUSER", "CUSTOMER");
         http.authorizeRequests().antMatchers(DELETE, "/bookings/delete/*").hasAnyAuthority("SUPERUSER", "CUSTOMER");
+        http.authorizeRequests().antMatchers(GET, "/bookings/customer/*").hasAnyAuthority( "CUSTOMER");
 
         http.authorizeRequests().antMatchers(GET, "/vehicles","/vehicles/*").hasAnyAuthority( "SUPERUSER", "CUSTOMER");
         http.authorizeRequests().antMatchers(POST, "/vehicles/add").hasAnyAuthority("SUPERUSER");
         http.authorizeRequests().antMatchers(DELETE, "/vehicles/delete/*").hasAnyAuthority("SUPERUSER");
         http.authorizeRequests().antMatchers(PUT, "/vehicles/update/*").hasAnyAuthority("SUPERUSER");
-        http.authorizeRequests().antMatchers(GET, "/vehicles/*").hasAnyAuthority( "SUPERUSER");
+        http.authorizeRequests().antMatchers(GET, "/vehicles/add").hasAnyAuthority( "SUPERUSER");
 
         // this filter come before all others filter
         http.addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);

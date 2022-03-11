@@ -39,7 +39,7 @@ public class Vehicle implements Serializable {
 
     @Column(name = "license_plate", unique = true)
     @NotEmpty
-    @Size(min = 5, max = 5, message = "The licence plate must have exactly five characters")
+    @Size(min = 7, max = 7, message = "The licence plate must have exactly seven characters")
     private String licensePlate;
 
     @Column(name = "manufacturer")
