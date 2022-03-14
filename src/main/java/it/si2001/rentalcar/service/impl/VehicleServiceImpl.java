@@ -283,6 +283,7 @@ public class VehicleServiceImpl implements VehicleService {
                 v = vehicleRepository.findByLicensePlate(value);
 
                 if(v.isPresent()){
+                    results.add(v.get());
                     return results;
                 }
 
@@ -304,7 +305,10 @@ public class VehicleServiceImpl implements VehicleService {
 
                 log.info("Try to search by model");
 
-                results = vehicleRepository.findByModel(value);
+                results = vehicleRepository.findAll()
+                        .stream()
+                        .filter(x -> x.getModel().equals(value))
+                        .collect(Collectors.toList());
 
                 if(results.size() != 0){
                     return results;

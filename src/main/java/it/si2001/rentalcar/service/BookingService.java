@@ -5,6 +5,7 @@ import it.si2001.rentalcar.entity.Booking;
 import org.slf4j.Logger;
 import org.springframework.http.ResponseEntity;
 
+import java.text.ParseException;
 import java.util.List;
 
 public interface BookingService {
@@ -24,4 +25,7 @@ public interface BookingService {
     Booking updateBooking(Booking b, Long id);
 
     ResponseEntity<ObjectNode> manageExceptions(Exception e, Logger logger, ObjectNode responseNode);
+
+    List<Booking> search(String field, String value) throws ParseException;
+
 }

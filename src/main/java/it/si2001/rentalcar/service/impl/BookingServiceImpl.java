@@ -18,6 +18,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -285,4 +289,107 @@ public class BookingServiceImpl implements BookingService {
     }
 
 
+
+
+
+    @Override
+    public List<Booking> search(String field, String value) throws ParseException {
+
+        Optional<Booking> b;
+
+        List<Booking> bookings = new ArrayList<>();
+
+        Date d;
+
+        switch (field){
+
+            case "idBooking":
+
+                log.info("Try to get the Booking with id {}", value);
+
+                b = bookingRepository.findById(Long.valueOf(value));
+
+                if(b.isPresent()){
+
+                    bookings.add(b.get());
+
+                    return bookings;
+
+                }
+
+                throw new ResourceNotFoundException("Booking", "id", value);
+
+            case "start":
+
+                log.info("Try to get the Bookings with start date {}", value);
+
+                d = new SimpleDateFormat("yyyy-MM-dd").parse(value);
+
+                bookings = bookingRepository.findByStart(d);
+
+                if(bookings.isEmpty()){
+
+                    throw new ResourceNotFoundException("Bookings", "start date", value);
+
+                }
+
+                return bookings;
+
+            case "end":
+
+                log.info("Try to get the Bookings with end date {}", value);
+
+                d = new SimpleDateFormat("yyyy-MM-dd").parse(value);
+
+                bookings = bookingRepository.findByEnd(d);
+
+                if(bookings.isEmpty()){
+
+                    throw new ResourceNotFoundException("Bookings", "end date", value);
+
+                }
+
+                return bookings;
+
+            case "vehicle":
+
+                log.info("Try to get the Bookings for the Vehicle with id {}", value);
+
+                bookings = bookingRepository.findAll()
+                        .stream()
+                        .filter(x -> x.getVehicle().getIdVehicle().equals(Long.valueOf(value)))
+                        .collect(Collectors.toList());
+
+                if(bookings.isEmpty()){
+
+                    throw new ResourceNotFoundException("Bookings", "Vehicle id", value);
+
+                }
+
+                return bookings;
+
+            case "user":
+
+                log.info("Try to get the Bookings for the User with id {}", value);
+
+                bookings = bookingRepository.findAll()
+                        .stream()
+                        .filter(x -> x.getUser().getIdUser().equals(Long.valueOf(value)))
+                        .collect(Collectors.toList());
+
+                if(bookings.isEmpty()){
+
+                    throw new ResourceNotFoundException("Bookings", "User id", value);
+
+                }
+
+                return bookings;
+
+            default:
+
+                return bookings;
+
+        }
+
+    }
 }

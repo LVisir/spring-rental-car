@@ -7,6 +7,7 @@ import it.si2001.rentalcar.exception.CustomException;
 import it.si2001.rentalcar.exception.ResourceAlreadyExistingException;
 import it.si2001.rentalcar.exception.ResourceNotFoundException;
 import it.si2001.rentalcar.service.BookingService;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +16,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.text.ParseException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/bookings")
+@Slf4j
 public class BookingController {
 
     @Autowired
@@ -219,6 +223,10 @@ public class BookingController {
 
     }
 
+
+
+
+
     @GetMapping(value = "/customer/{id}", produces = "application/json")
     public ResponseEntity<?> getBookingsOfUser(@PathVariable("id") Long id){
 
@@ -237,6 +245,111 @@ public class BookingController {
             return new ResponseEntity<>(bookings, HttpStatus.OK);
 
         }catch (Exception e){
+
+            return bookingService.manageExceptions(e, logger, responseNode);
+
+        }
+
+    }
+
+
+
+
+
+    @GetMapping(value = "/search", produces = "application/json")
+    public ResponseEntity<?> searchBy(@RequestParam("field") String field, @RequestParam("value") String value){
+
+        try{
+
+            log.info("***** Try to search by {} with value {}", field, value);
+
+            List<Booking> bookings = bookingService.search(field, value);
+
+            if(bookings.isEmpty()){
+
+                log.error("No Booking/s found");
+
+                responseNode.put("error", "No Booking/s found");
+
+                return new ResponseEntity<>(responseNode, HttpStatus.NO_CONTENT);
+
+            }
+
+            log.info("Booking/s found");
+
+            return new ResponseEntity<>(bookings, HttpStatus.OK);
+
+        } catch (ParseException e) {
+
+            log.error("Error: {}", e.getMessage());
+
+            responseNode.put("error", e.getMessage());
+
+            return new ResponseEntity<>(responseNode, HttpStatus.BAD_REQUEST);
+
+        }catch (ResourceNotFoundException e){
+
+            logger.error("***** "+e.getMessage()+" *****");
+
+            responseNode.put("error", e.getMessage());
+
+            return new ResponseEntity<>(responseNode, HttpStatus.NOT_FOUND);
+
+        }
+        catch (Exception e){
+
+            return bookingService.manageExceptions(e, logger, responseNode);
+
+        }
+
+    }
+
+
+
+
+
+    @GetMapping(value = "/customers/{id}/search", produces = "application/json")
+    public ResponseEntity<?> customerSearchBy(@RequestParam("field") String field, @RequestParam("value") String value, @PathVariable("id") Long id){
+
+        try{
+
+            log.info("***** Customer with id {} tried to search by {} with value {}",id, field, value);
+
+            List<Booking> bookings = bookingService.search(field, value)
+                    .stream()
+                    .filter(x -> x.getUser().getIdUser().equals(id))
+                    .collect(Collectors.toList());
+
+            if(bookings.isEmpty()){
+
+                log.error("No Booking/s found");
+
+                responseNode.put("error", "No Booking/s found");
+
+                return new ResponseEntity<>(responseNode, HttpStatus.NO_CONTENT);
+
+            }
+
+            return new ResponseEntity<>(bookings, HttpStatus.OK);
+
+        } catch (ParseException e) {
+
+            log.error("Error: {}", e.getMessage());
+
+            responseNode.put("error", e.getMessage());
+
+            return new ResponseEntity<>(responseNode, HttpStatus.BAD_REQUEST);
+
+        }catch (ResourceNotFoundException e){
+
+            logger.error("***** "+e.getMessage()+" *****");
+
+            responseNode.put("error", e.getMessage());
+
+            return new ResponseEntity<>(responseNode, HttpStatus.NOT_FOUND);
+
+        }
+        catch (Exception e){
 
             return bookingService.manageExceptions(e, logger, responseNode);
 
