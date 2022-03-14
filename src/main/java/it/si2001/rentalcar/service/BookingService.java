@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.springframework.http.ResponseEntity;
 
 import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
 
 public interface BookingService {
@@ -27,5 +28,7 @@ public interface BookingService {
     ResponseEntity<ObjectNode> manageExceptions(Exception e, Logger logger, ObjectNode responseNode);
 
     List<Booking> search(String field, String value) throws ParseException;
+
+    Date getLastBooking(Long id);
 
 }

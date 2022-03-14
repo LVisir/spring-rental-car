@@ -8,7 +8,7 @@ import java.io.Serial;
 /**
  * Exception when an operation try to insert an existing entity
  */
-@ResponseStatus(value = HttpStatus.NO_CONTENT)
+@ResponseStatus(value = HttpStatus.NOT_FOUND)
 public class ResourceAlreadyExistingException extends RuntimeException {
 
     @Serial

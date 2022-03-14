@@ -52,7 +52,9 @@ public class BookingController {
 
                 logger.error("***** No Bookings found *****");
 
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                responseNode.put("error", "No Bookings found");
+
+                return new ResponseEntity<>(responseNode, HttpStatus.NOT_FOUND);
 
             }
 
@@ -119,7 +121,9 @@ public class BookingController {
 
             logger.error("***** "+e.getMessage()+" *****");
 
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            responseNode.put("error", e.getMessage());
+
+            return new ResponseEntity<>(responseNode, HttpStatus.NOT_FOUND);
 
         }
         catch (CustomException e){
@@ -227,7 +231,7 @@ public class BookingController {
 
 
 
-    @GetMapping(value = "/customer/{id}", produces = "application/json")
+    @GetMapping(value = "/customers/{id}", produces = "application/json")
     public ResponseEntity<?> getBookingsOfUser(@PathVariable("id") Long id){
 
         try{
@@ -238,7 +242,9 @@ public class BookingController {
 
             if(bookings == null){
 
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                responseNode.put("error", "No Bookings found");
+
+                return new ResponseEntity<>(responseNode, HttpStatus.NOT_FOUND);
 
             }
 
@@ -271,7 +277,7 @@ public class BookingController {
 
                 responseNode.put("error", "No Booking/s found");
 
-                return new ResponseEntity<>(responseNode, HttpStatus.NO_CONTENT);
+                return new ResponseEntity<>(responseNode, HttpStatus.NOT_FOUND);
 
             }
 
@@ -326,7 +332,7 @@ public class BookingController {
 
                 responseNode.put("error", "No Booking/s found");
 
-                return new ResponseEntity<>(responseNode, HttpStatus.NO_CONTENT);
+                return new ResponseEntity<>(responseNode, HttpStatus.NOT_FOUND);
 
             }
 

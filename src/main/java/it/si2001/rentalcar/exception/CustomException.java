@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.io.Serial;
 
-@ResponseStatus(value = HttpStatus.NO_CONTENT)
+@ResponseStatus(value = HttpStatus.NOT_FOUND)
 public class CustomException extends RuntimeException{
 
     @Serial

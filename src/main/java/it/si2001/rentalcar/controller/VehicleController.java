@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import it.si2001.rentalcar.entity.Vehicle;
 import it.si2001.rentalcar.exception.ResourceAlreadyExistingException;
 import it.si2001.rentalcar.exception.ResourceNotFoundException;
+import it.si2001.rentalcar.service.BookingService;
 import it.si2001.rentalcar.service.VehicleService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,9 @@ public class VehicleController {
     @Autowired
     private VehicleService vehicleService;
 
+    @Autowired
+    private BookingService bookingService;
+
     private final ObjectMapper mapper = new ObjectMapper();
 
     // maps to JSON Object structures in JSON content
@@ -51,9 +55,11 @@ public class VehicleController {
 
             if(vehicles == null){
 
-                logger.error("***** No vehicles found *****");
+                logger.error("***** No Vehicles found *****");
 
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                responseNode.put("error", "No Vehicles found");
+
+                return new ResponseEntity<>(responseNode, HttpStatus.NOT_FOUND);
 
             }
 
@@ -81,7 +87,7 @@ public class VehicleController {
 
             Vehicle v = vehicleService.fetchVehicle(id);
 
-            return ResponseEntity.ok().body(v);
+            return new ResponseEntity<>(v, HttpStatus.OK);
 
         }
         catch (ResourceNotFoundException e){
@@ -117,16 +123,7 @@ public class VehicleController {
             return ResponseEntity.ok().body(vehicleUpdated);
 
         }
-        catch (ResourceAlreadyExistingException e){
-
-            logger.error("***** "+e.getMessage()+" *****");
-
-            responseNode.put("error", e.getMessage());
-
-            return new ResponseEntity<>(responseNode, HttpStatus.NO_CONTENT);
-
-        }
-        catch (ResourceNotFoundException e){
+        catch (ResourceAlreadyExistingException | ResourceNotFoundException e){
 
             logger.error("***** "+e.getMessage()+" *****");
 
@@ -134,8 +131,7 @@ public class VehicleController {
 
             return new ResponseEntity<>(responseNode, HttpStatus.NOT_FOUND);
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
 
             return vehicleService.manageExceptions(e, logger, responseNode);
 
@@ -198,7 +194,7 @@ public class VehicleController {
 
             responseNode.put("error", e.getMessage());
 
-            return new ResponseEntity<>(responseNode, HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(responseNode, HttpStatus.FORBIDDEN);
 
         }
         catch (Exception e) {
@@ -213,14 +209,18 @@ public class VehicleController {
 
 
 
-    @GetMapping(value = "/lastBooking/{id}", produces = "application/json")
-    public ResponseEntity<?> getLastBookingDateOfVehicle(@PathVariable("id") Long id){
+    @GetMapping(value = "/lastBooking", produces = "application/json")
+    public ResponseEntity<?> getLastBookingDateOfVehicle(@RequestParam("booking") Long idBooking, @RequestParam("customer") Long idCustomer){
 
         try{
 
-            logger.info("***** Try to get the last Booking Date of the Vehicle with id "+ id+ " *****");
+            logger.info("***** Try to get the last Booking Date of the Vehicle with id "+ idBooking+ " *****");
 
-            Date lastDate = vehicleService.getFirstAvailableBookingDay(id);
+            Date firstLastDate = vehicleService.getFirstAvailableBookingDay(idBooking);
+
+            Date secondLastDate = bookingService.getLastBooking(idCustomer);
+
+            Date lastDate = firstLastDate.compareTo(secondLastDate) >= 0 ? firstLastDate : secondLastDate;
 
             Map<String, String> dates = new HashMap<>();
 
@@ -275,7 +275,7 @@ public class VehicleController {
 
                 responseNode.put("error", "No Vehicle/s found");
 
-                return new ResponseEntity<>(responseNode, HttpStatus.NO_CONTENT);
+                return new ResponseEntity<>(responseNode, HttpStatus.NOT_FOUND);
 
             }
 

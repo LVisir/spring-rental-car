@@ -215,7 +215,7 @@ public class VehicleServiceImpl implements VehicleService {
     @Override
     public Date getFirstAvailableBookingDay(Long id) {
 
-        log.info("Check if the Vehicle with id {} exista", id);
+        log.info("Check if the Vehicle with id {} exists", id);
 
         Optional<Vehicle> vehicle = vehicleRepository.findByIdVehicle(id);
 

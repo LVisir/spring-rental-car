@@ -20,10 +20,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -390,6 +387,49 @@ public class BookingServiceImpl implements BookingService {
                 return bookings;
 
         }
+
+    }
+
+
+    /**
+     *
+     * @param id: id of an existing User
+     * @return the first date possible to book
+     */
+    @Override
+    public Date getLastBooking(Long id) {
+
+        log.info("Check if the User with id {} exists", id);
+
+        Optional<User> user = userRepository.findByIdUser(id);
+
+        if(user.isPresent()){
+
+            Optional<Booking> lastBooking = bookingRepository.findAll()
+                    .stream()
+                    .filter(x -> x.getUser().getIdUser().equals(id))
+                    .max(Comparator.comparing(Booking::getEnd));
+
+            if(lastBooking.isPresent()){
+
+                // checking if the date of the booking is lower than today
+                if(lastBooking.get().getEnd().compareTo(new Date()) < 0){
+                    return new Date();
+                }
+                else{
+                    return lastBooking.get().getEnd();
+                }
+
+            }
+            else{
+
+                return new Date();
+
+            }
+
+        }
+
+        throw new ResourceNotFoundException("User", "id", id);
 
     }
 }

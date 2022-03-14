@@ -55,7 +55,9 @@ public class UserController {
 
                 logger.error("***** No Users found *****");
 
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                responseNode.put("error", "No Users found");
+
+                return new ResponseEntity<>(responseNode, HttpStatus.NOT_FOUND);
 
             }
 
@@ -127,7 +129,7 @@ public class UserController {
 
             responseNode.put("error", e.getMessage());
 
-            return new ResponseEntity<>(responseNode, HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(responseNode, HttpStatus.NOT_FOUND);
 
         }
         catch (Exception e) {
@@ -161,7 +163,7 @@ public class UserController {
 
             responseNode.put("error", e.getMessage());
 
-            return new ResponseEntity<>(responseNode, HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(responseNode, HttpStatus.NOT_FOUND);
 
         }
         catch (Exception e) {
@@ -253,7 +255,7 @@ public class UserController {
             return new ResponseEntity<>(userUpdated, HttpStatus.OK);
 
         }
-        catch (ResourceNotFoundException e){
+        catch (ResourceNotFoundException | ResourceAlreadyExistingException e){
 
             logger.error("***** "+e.getMessage()+" *****");
 
@@ -261,17 +263,7 @@ public class UserController {
 
             return new ResponseEntity<>(responseNode, HttpStatus.NOT_FOUND);
 
-        }
-        catch (ResourceAlreadyExistingException e){
-
-            logger.error("***** "+e.getMessage()+" *****");
-
-            responseNode.put("error", e.getMessage());
-
-            return new ResponseEntity<>(responseNode, HttpStatus.NO_CONTENT);
-
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
 
             return userService.manageExceptions(e, logger, responseNode);
 
@@ -309,7 +301,7 @@ public class UserController {
 
             responseNode.put("error", e.getMessage());
 
-            return new ResponseEntity<>(responseNode, HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(responseNode, HttpStatus.FORBIDDEN);
 
         }
         catch (Exception e) {
@@ -363,7 +355,9 @@ public class UserController {
 
                 logger.error("***** No Customers found *****");
 
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                responseNode.put("error", "No Customers found");
+
+                return new ResponseEntity<>(responseNode, HttpStatus.NOT_FOUND);
 
             }
 
@@ -601,7 +595,7 @@ public class UserController {
 
                 responseNode.put("error", "No user/s found");
 
-                return new ResponseEntity<>(responseNode, HttpStatus.NO_CONTENT);
+                return new ResponseEntity<>(responseNode, HttpStatus.NOT_FOUND);
 
             }
 

@@ -53,15 +53,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // REMEMBER: THE ORDER MATTERS! Do it from the smaller to the bigger
         http.authorizeRequests().antMatchers("/login/**").permitAll();
 
-        /*http.authorizeRequests().antMatchers(GET, "/users").hasAnyAuthority("SUPERUSER");
-        http.authorizeRequests().antMatchers(GET, "/users/customers/**").hasAnyAuthority("SUPERUSER");
-        http.authorizeRequests().antMatchers(GET, "/users/customers/id/*").hasAnyAuthority("SUPERUSER", "CUSTOMER");
-        http.authorizeRequests().antMatchers(GET, "/users/email/*").hasAnyAuthority("SUPERUSER", "CUSTOMER");
-        http.authorizeRequests().antMatchers(GET, "/users/*").hasAnyAuthority("SUPERUSER");
-        http.authorizeRequests().antMatchers(POST, "/users/**").hasAnyAuthority("SUPERUSER");
-        http.authorizeRequests().antMatchers(PUT, "/users/**").hasAnyAuthority("SUPERUSER");
-        http.authorizeRequests().antMatchers(DELETE, "/users/**").hasAnyAuthority("SUPERUSER");*/
-        http.authorizeRequests().antMatchers(GET, "/users/**").hasAnyAuthority("SUPERUSER", "CUSTOMER");
+        http.authorizeRequests().antMatchers(GET, "/users", "/users/customers",
+                "/users/customers/normalSearch", "/users/*").hasAnyAuthority("SUPERUSER");
+        http.authorizeRequests().antMatchers(GET, "/users/customers/id/*", "/users/customers/email/*", "/users/email/*").hasAnyAuthority("SUPERUSER", "CUSTOMER");
         http.authorizeRequests().antMatchers(DELETE, "/users/**").hasAnyAuthority("SUPERUSER");
         http.authorizeRequests().antMatchers(PUT, "/users/**").hasAnyAuthority("SUPERUSER");
         http.authorizeRequests().antMatchers(POST, "/users/**").hasAnyAuthority("SUPERUSER");
@@ -69,8 +63,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers(GET, "/bookings").hasAnyAuthority("SUPERUSER");
         http.authorizeRequests().antMatchers(GET, "/bookings/search").hasAnyAuthority("SUPERUSER");
         http.authorizeRequests().antMatchers(GET, "/bookings/*").hasAnyAuthority("SUPERUSER", "CUSTOMER");
-        http.authorizeRequests().antMatchers(GET, "/bookings/customer/*").hasAnyAuthority( "CUSTOMER");
-        http.authorizeRequests().antMatchers(GET, "/bookings/customer/*/search").hasAnyAuthority( "CUSTOMER");
+        http.authorizeRequests().antMatchers(GET, "/bookings/customers/*").hasAnyAuthority( "CUSTOMER");
+        http.authorizeRequests().antMatchers(GET, "/bookings/customers/*/search").hasAnyAuthority( "CUSTOMER");
         http.authorizeRequests().antMatchers(POST, "/bookings/add").hasAnyAuthority("SUPERUSER", "CUSTOMER");
         http.authorizeRequests().antMatchers(PUT, "/bookings/update/*").hasAnyAuthority("SUPERUSER", "CUSTOMER");
         http.authorizeRequests().antMatchers(DELETE, "/bookings/delete/*").hasAnyAuthority("SUPERUSER", "CUSTOMER");
