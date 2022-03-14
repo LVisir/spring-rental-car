@@ -55,7 +55,7 @@ public class Vehicle implements Serializable {
     @Column(name = "registr_year")
     @Temporal(TemporalType.DATE)
     @NotNull
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Europe/Madrid")
     private Date registrYear;
 
     @Column(name = "typology")

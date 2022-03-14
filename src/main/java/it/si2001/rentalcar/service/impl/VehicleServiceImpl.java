@@ -15,10 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -248,6 +247,109 @@ public class VehicleServiceImpl implements VehicleService {
         }
 
         throw new ResourceNotFoundException("Vehicle", "id", id);
+    }
+
+
+
+
+
+    @Override
+    public List<Vehicle> search(String field, String value) throws ParseException {
+
+        List<Vehicle> results = new ArrayList<>();
+
+        Optional<Vehicle> v;
+
+        switch(field){
+
+            case "idVehicle":
+
+                log.info("Try to search by id");
+
+                v = vehicleRepository.findByIdVehicle(Long.parseLong(value));
+
+                if(v.isEmpty()){
+                    throw new ResourceNotFoundException("Vehicle", "id", value);
+                }
+
+                results.add(v.get());
+
+                return results;
+
+            case "licensePlate":
+
+                log.info("Try to search by license plate");
+
+                v = vehicleRepository.findByLicensePlate(value);
+
+                if(v.isPresent()){
+                    return results;
+                }
+
+                throw  new ResourceNotFoundException("Vehicle", "license plate", value);
+
+            case "manufacturer":
+
+                log.info("Try to search by manufacturer");
+
+                results = vehicleRepository.findByManufacturer(value);
+
+                if(results.size() != 0){
+                    return results;
+                }
+
+                throw  new ResourceNotFoundException("Vehicles", "manufacturer", value);
+
+            case "model":
+
+                log.info("Try to search by model");
+
+                results = vehicleRepository.findByModel(value);
+
+                if(results.size() != 0){
+                    return results;
+                }
+
+                throw  new ResourceNotFoundException("Vehicles", "model", value);
+
+            case "registrYear":
+
+                log.info("Try to search by registration year");
+
+                Date d = new SimpleDateFormat("yyyy-MM-dd").parse(value);
+
+                results = vehicleRepository.findAll()
+                        .stream()
+                        .filter(x -> x.getRegistrYear().equals(d))
+                        .collect(Collectors.toList());
+
+                if(results.size() != 0){
+                    return results;
+                }
+
+                throw  new ResourceNotFoundException("Vehicles", "date", value);
+
+            case "typology":
+
+                log.info("Try to search by typology");
+
+                results = vehicleRepository.findAll()
+                        .stream()
+                        .filter(x -> x.getTypology().equals(Vehicle.Typology.valueOf(value)))
+                        .collect(Collectors.toList());
+
+                if(results.size() != 0){
+                    return results;
+                }
+
+                throw  new ResourceNotFoundException("Vehicles", "typology", value);
+
+            default:
+
+                return results;
+
+        }
+
     }
 
 }

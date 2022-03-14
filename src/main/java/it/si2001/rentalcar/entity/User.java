@@ -53,7 +53,7 @@ public class User implements Serializable {
     @Column(name = "birth_date")
     @Temporal(TemporalType.DATE)
     @NotNull
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Europe/Madrid")
     private Date birthDate;
 
     @Column(name = "role")

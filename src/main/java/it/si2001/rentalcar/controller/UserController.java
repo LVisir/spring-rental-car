@@ -582,4 +582,54 @@ public class UserController {
 
     }
 
+
+
+
+
+    @GetMapping(value = "/customers/normalSearch", produces = "application/json")
+    public ResponseEntity<?> searchUsers(@RequestParam("field") String field, @RequestParam("value") String value){
+
+        try{
+
+            log.info("***** Try to search User with field {} and value {}", field, value);
+
+            List<User> users = userService.search(field, value);
+
+            if(users.isEmpty()){
+
+                log.error("No user/s found");
+
+                responseNode.put("error", "No user/s found");
+
+                return new ResponseEntity<>(responseNode, HttpStatus.NO_CONTENT);
+
+            }
+
+            return new ResponseEntity<>(users, HttpStatus.OK);
+
+        } catch (ParseException e) {
+
+            log.error("Parse error: {}", e.getMessage());
+
+            responseNode.put("error", e.getMessage());
+
+            return new ResponseEntity<>(responseNode, HttpStatus.BAD_REQUEST);
+
+        }catch (ResourceNotFoundException e){
+
+            logger.error("***** "+e.getMessage()+" *****");
+
+            responseNode.put("error", e.getMessage());
+
+            return new ResponseEntity<>(responseNode, HttpStatus.NOT_FOUND);
+
+        }
+        catch (Exception e) {
+
+            return userService.manageExceptions(e, logger, responseNode);
+
+        }
+
+    }
+
 }

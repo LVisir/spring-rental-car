@@ -593,6 +593,125 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
 
 
+    @Override
+    public List<User> search(String field, String value) throws ParseException {
+
+        List<User> results = new ArrayList<>();
+
+        Optional<User> u;
+
+        switch(field){
+
+            case "idUser":
+
+                log.info("Try to search by id");
+
+                u = userRepository.findByIdUser(Long.parseLong(value));
+
+                if(u.isEmpty()){
+                    throw new ResourceNotFoundException("User", "id", value);
+                }
+
+                else if(!u.get().getRole().equals(User.Role.CUSTOMER)){
+                    throw new ResourceNotFoundException("User", "id", value);
+                }
+
+                results.add(u.get());
+
+                return results;
+
+            case "name":
+
+                log.info("Try to search by name");
+
+                results = userRepository.findByRole(User.Role.CUSTOMER)
+                        .stream()
+                        .filter(x -> x.getName().equals(value))
+                        .collect(Collectors.toList());
+
+                if(results.size() != 0){
+                    return results;
+                }
+
+                throw  new ResourceNotFoundException("Customers", "name", value);
+
+            case "surname":
+
+                log.info("Try to search by surname");
+
+                results = userRepository.findByRole(User.Role.CUSTOMER)
+                        .stream()
+                        .filter(x -> x.getSurname().equals(value))
+                        .collect(Collectors.toList());
+
+                if(results.size() != 0){
+                    return results;
+                }
+
+                throw  new ResourceNotFoundException("Customers", "surname", value);
+
+            case "cf":
+
+                log.info("Try to search by cf");
+
+                u = userRepository.findByCf(value);
+
+                if(u.isEmpty()){
+                    throw new ResourceNotFoundException("Customer", "cf", value);
+                }
+
+                else if(!u.get().getRole().equals(User.Role.CUSTOMER)){
+                    throw new ResourceNotFoundException("Customer", "id", value);
+                }
+
+                results.add(u.get());
+
+                return results;
+
+            case "email":
+
+                log.info("Try to search by email");
+
+                u = userRepository.findByEmail(value);
+
+                if(u.isEmpty()){
+                    throw new ResourceNotFoundException("Customer", "email", value);
+                }
+
+                else if(!u.get().getRole().equals(User.Role.CUSTOMER)){
+                    throw new ResourceNotFoundException("Customer", "id", value);
+                }
+
+                results.add(u.get());
+
+                return results;
+
+            case "birthDate":
+
+                log.info("Try to search by birth date");
+
+                Date d = new SimpleDateFormat("yyyy-MM-dd").parse(value);
+
+                results = userRepository.findByRole(User.Role.CUSTOMER)
+                        .stream()
+                        .filter(x -> x.getBirthDate().equals(d))
+                        .collect(Collectors.toList());
+
+                if(results.size() != 0){
+                    return results;
+                }
+
+                throw  new ResourceNotFoundException("Customer", "birthDate", value);
+
+            default:
+
+                return results;
+
+        }
+
+    }
+
+
     /**
      * Search a field from a certain value and in a certain page
      * @param field : search by this field

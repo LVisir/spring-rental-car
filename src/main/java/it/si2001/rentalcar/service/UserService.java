@@ -47,6 +47,8 @@ public interface UserService {
 
     User findCustomerByCf(String cf);
 
+    List<User> search(String field, String value) throws ParseException;
+
     List<User> searchInCustomers(String field, String value, int offset, int pageSize) throws ParseException;
 
     List<User> searchInCustomersBySort(String field, String value, int offset, int pageSize, List<String> order, List<String> fields) throws ParseException;

@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -239,6 +240,56 @@ public class VehicleController {
 
         }
         catch (ResourceNotFoundException e){
+
+            logger.error("***** "+e.getMessage()+" *****");
+
+            responseNode.put("error", e.getMessage());
+
+            return new ResponseEntity<>(responseNode, HttpStatus.NOT_FOUND);
+
+        }
+        catch (Exception e) {
+
+            return vehicleService.manageExceptions(e, logger, responseNode);
+
+        }
+
+    }
+
+
+
+
+
+    @GetMapping(value = "/search", produces = "application/json")
+    public ResponseEntity<?> searchBy(@RequestParam("field") String field, @RequestParam("value") String value){
+
+        try{
+
+            logger.info("***** Try to search Vehicle/s by "+field+" with value "+value);
+
+            List<Vehicle> result = vehicleService.search(field, value);
+
+            if(result.isEmpty()){
+
+                logger.error("No Vehicle/s found");
+
+                responseNode.put("error", "No Vehicle/s found");
+
+                return new ResponseEntity<>(responseNode, HttpStatus.NO_CONTENT);
+
+            }
+
+            return new ResponseEntity<>(result, HttpStatus.OK);
+
+        } catch (ParseException e) {
+
+            logger.error("Error: "+e.getMessage());
+
+            responseNode.put("error", e.getMessage());
+
+            return new ResponseEntity<>(responseNode, HttpStatus.BAD_REQUEST);
+
+        }catch (ResourceNotFoundException e){
 
             logger.error("***** "+e.getMessage()+" *****");
 
