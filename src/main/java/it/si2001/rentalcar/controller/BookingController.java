@@ -117,7 +117,7 @@ public class BookingController {
             return new ResponseEntity<>(b, HttpStatus.CREATED);
 
         }
-        catch (ResourceAlreadyExistingException e){
+        catch (ResourceAlreadyExistingException | ResourceNotFoundException e){
 
             logger.error("***** "+e.getMessage()+" *****");
 
@@ -134,17 +134,7 @@ public class BookingController {
 
             return new ResponseEntity<>(responseNode, HttpStatus.INTERNAL_SERVER_ERROR);
 
-        }
-        catch (ResourceNotFoundException e){
-
-            logger.error("***** "+e.getMessage()+" *****");
-
-            responseNode.put("error", e.getMessage());
-
-            return new ResponseEntity<>(responseNode, HttpStatus.NOT_FOUND);
-
-        }
-        catch (Exception e){
+        } catch (Exception e){
 
             return bookingService.manageExceptions(e, logger, responseNode);
 
