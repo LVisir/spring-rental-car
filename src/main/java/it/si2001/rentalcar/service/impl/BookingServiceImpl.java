@@ -70,16 +70,21 @@ public class BookingServiceImpl implements BookingService {
 
         log.info(" Getting the Bookings of the User of id {}", id);
 
-        List<Booking> bookings = bookingRepository.findAll()
-                .stream()
-                .filter(x -> x.getUser().getIdUser().equals(id))
-                .collect(Collectors.toList());
+        Optional<User> user = userRepository.findByIdUser(id);
 
-        if(bookings.isEmpty()){
-            return null;
+        if(user.isPresent()){
+
+            if(user.get().getBookings().isEmpty()){
+
+                return null;
+
+            }
+
+            return user.get().getBookings();
+
         }
 
-        return bookings;
+        throw new ResourceNotFoundException("Bookings of the User", "id", id);
 
     }
 

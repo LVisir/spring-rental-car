@@ -240,7 +240,16 @@ public class BookingController {
 
             return new ResponseEntity<>(bookings, HttpStatus.OK);
 
-        }catch (Exception e){
+        }catch (ResourceNotFoundException e){
+
+            logger.error("***** "+e.getMessage()+" *****");
+
+            responseNode.put("error", e.getMessage());
+
+            return new ResponseEntity<>(responseNode, HttpStatus.NOT_FOUND);
+
+        }
+        catch (Exception e){
 
             return bookingService.manageExceptions(e, logger, responseNode);
 
