@@ -47,7 +47,7 @@ public class User implements Serializable {
 
     @Column(name = "cf", unique = true)
     @NotEmpty
-    @Size(min = 5, max = 5, message = "The fiscal code must have exactly 5 characters")
+    @Size(min = 5, max = 15, message = "The fiscal code must have from 5 to 15 characters")
     private String cf;
 
     @Column(name = "birth_date")
