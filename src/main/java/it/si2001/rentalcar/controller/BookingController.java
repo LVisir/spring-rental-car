@@ -260,6 +260,45 @@ public class BookingController {
 
 
 
+    @GetMapping(value = "/customers/email/{email}", produces = "application/json")
+    public ResponseEntity<?> getBookingsOfUserFromEmail(@PathVariable("email") String email){
+
+        try{
+
+            logger.info("***** Try to fetch the Bookings of the Customer with email "+email);
+
+            List<Booking> bookings = bookingService.getAllBookingsByEmail(email);
+
+            if(bookings == null){
+
+                responseNode.put("error", "No Bookings found");
+
+                return new ResponseEntity<>(responseNode, HttpStatus.NOT_FOUND);
+
+            }
+
+            return new ResponseEntity<>(bookings, HttpStatus.OK);
+
+        }catch (ResourceNotFoundException e){
+
+            logger.error("***** "+e.getMessage()+" *****");
+
+            responseNode.put("error", e.getMessage());
+
+            return new ResponseEntity<>(responseNode, HttpStatus.NOT_FOUND);
+
+        }
+        catch (Exception e){
+
+            return bookingService.manageExceptions(e, logger, responseNode);
+
+        }
+
+    }
+
+
+
+
 
     @GetMapping(value = "/search", produces = "application/json")
     public ResponseEntity<?> searchBy(@RequestParam("field") String field, @RequestParam("value") String value){

@@ -64,6 +64,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers(GET, "/bookings/search").hasAnyAuthority("SUPERUSER");
         http.authorizeRequests().antMatchers(GET, "/bookings/*").hasAnyAuthority("SUPERUSER", "CUSTOMER");
         http.authorizeRequests().antMatchers(GET, "/bookings/customers/*").hasAnyAuthority( "CUSTOMER");
+        http.authorizeRequests().antMatchers(GET, "/bookings/customers/email/*").hasAnyAuthority( "CUSTOMER");
         http.authorizeRequests().antMatchers(GET, "/bookings/customers/*/search").hasAnyAuthority( "CUSTOMER");
         http.authorizeRequests().antMatchers(POST, "/bookings/add").hasAnyAuthority("SUPERUSER", "CUSTOMER");
         http.authorizeRequests().antMatchers(PUT, "/bookings/update/*").hasAnyAuthority("SUPERUSER", "CUSTOMER");

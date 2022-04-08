@@ -88,6 +88,29 @@ public class BookingServiceImpl implements BookingService {
 
     }
 
+    @Override
+    public List<Booking> getAllBookingsByEmail(String email) {
+
+        log.info(" Getting the Bookings of the Customer with email {}", email);
+
+        Optional<User> user = userRepository.findByEmail(email);
+
+        if(user.isPresent()){
+
+            if(user.get().getBookings().isEmpty()){
+
+                return null;
+
+            }
+
+            return user.get().getBookings();
+
+        }
+
+        throw new ResourceNotFoundException("Bookings of the Customer", "email", email);
+
+    }
+
 
     @Override
     public Booking getBooking(Long id) {

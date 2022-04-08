@@ -15,6 +15,8 @@ public interface BookingService {
 
     List<Booking> getAllBookingsFromUser(Long id);
 
+    List<Booking> getAllBookingsByEmail(String email);
+
     Booking getBooking(Long id);
 
     void checkInsertUpdateConstraint(Booking b);
