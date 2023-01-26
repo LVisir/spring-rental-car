@@ -71,7 +71,9 @@ Note: because all the request are available only for ```CUSTOMER``` or for ```SU
 ## Database schema
 
 ![](./diagram%20e_r%20final.png)
-## API Reference: anyone
+## API Reference
+
+#### Login (ANYONE)
 
 ```http
   POST /login
