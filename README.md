@@ -9,6 +9,10 @@ Back-end Spring boot project of a simple rental car application.
  - [Introduction](#introduction)
  - [Technologies](#technologies)
  - [Setup](#setup)
+ - [Database Schema](#database-schema)
+ - [API Reference](#api-reference)
+ - [Links](#links)
+ 
 
 ## General Info
 
@@ -21,7 +25,7 @@ The goal of this project is to learn how [Spring](https://spring.io/projects/spr
 - Java 17
 - MySQL
 ## Setup
-You need a MySQL database called ``` rental_car_db ``` that is running on localhost:3306 (check [ application.properties](https://github.com/LVisir/spring-rental-car/blob/master/src/main/resources/application.properties) for more details). To insert the table in the database just copy paste exactly in the following order: 
+You need a MySQL database called ``` rental_car_db ``` that is running on localhost:3306 (check [ application.properties](https://github.com/LVisir/spring-rental-car/blob/master/src/main/resources/application.properties) for more details and to set the username and password of your db). To insert the table in the database just copy paste exactly in the following order: 
 
 ``` create table vehicles(
 id int auto_increment not null primary key,
@@ -452,5 +456,6 @@ Every request must have a specified header telling the db wich user is calling  
 
 
 ## 🔗 Links
+[![portfolio](https://img.shields.io/badge/my_portfolio-000?style=for-the-badge&logo=ko-fi&logoColor=white)](https://github.com/LVisir)
 [![linkedin](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/edoardo-mariani-2903a5262/)
 
