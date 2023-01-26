@@ -11,7 +11,7 @@ Back-end Spring boot project of a simple rental car application.
  - [Setup](#setup)
  - [Database Schema](#database-schema)
  - [API Reference](#api-reference)
- - [Links](#links)
+ - [Links](#-links)
  
 
 ## General Info
