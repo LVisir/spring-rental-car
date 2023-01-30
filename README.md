@@ -90,11 +90,17 @@ Note: because all the request are available only for ```CUSTOMER``` or for ```SU
 
 The returned value is the **access_token**, that represent the alphanumeric code needed to send any other request.
 
-**\*** Because at the beginning there is no registered user, insert a mock user in the MySQL db to test the API:
+**\*** Because at the beginning there is no data, insert some mock users and vehicles in the MySQL db to test the API:
 
 ```
 insert into users (name, surname, birth_date, role, email, password, cf)
 values ('Jhon', 'McDonald', '1997-03-01', 'SUPERUSER', 'test@gmail.com', '1234', 'AAABBBCCCEEERRR');
+
+insert into users (name, surname, birth_date, role, email, password, cf)
+values ('Giani', 'Caccamo', '1956-11-15', 'CUSTOMER', 'caccamo@gmail.com', '1234', 'ZZZKKKSSSDDDWWW');
+
+insert into vehicles (license_plate, manufacturer, typology, model, registr_year)
+values ('AA123BK', 'Toyota', 'COMPACT', 'SummerMoon', '2000-01-01');
 ```
 
 ## API Reference: USER
