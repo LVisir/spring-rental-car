@@ -27,7 +27,8 @@ The goal of this project is to learn how [Spring](https://spring.io/projects/spr
 ## Setup
 You need a MySQL database called ``` rental_car_db ``` that is running on localhost:3306 (check [ application.properties](https://github.com/LVisir/spring-rental-car/blob/master/src/main/resources/application.properties) for more details and to set the username and password of your db). To insert the table in the database just copy paste exactly in the following order: 
 
-``` create table vehicles(
+``` 
+create table vehicles(
 id int auto_increment not null primary key,
 license_plate varchar(7) not null unique,
 manufacturer varchar(50) not null,
