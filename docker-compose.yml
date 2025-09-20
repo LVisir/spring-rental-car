@@ -1,0 +1,21 @@
+version: "3.8"
+services:
+  mysql:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: rental_car_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./initdb:/docker-entrypoint-initdb.d:ro
+    tmpfs:
+      - /var/lib/mysql
+
+
+  backend:
+    build: .   # use the Dockerfile
+    depends_on:
+      - mysql
+    ports:
+      - "8091:8091"
