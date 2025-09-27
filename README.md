@@ -21,6 +21,7 @@ A back-end project made of three entities: vehicles, users, bookings. Each user 
 ## Introduction
 
 The goal of this project is to provide a small-scale demonstration of how modern microservice architectures are structured, offering an overview of [Spring Boot](https://spring.io/projects/spring-boot), [REST API](https://it.wikipedia.org/wiki/Representational_state_transfer), [JWT authentication](https://www.jwt.io/introduction), [Docker](https://docs.docker.com/manuals/), and [Swagger](https://swagger.io/). The project uses a database spun up via the images provided by MySQL. 
+
 Note: since this is for educational purposes, the database is not persistent. When the container is removed, all data will be lost. For the fron-end part please take a look one of this two repo: [react-front-end](https://github.com/LVisir/react-rental-car), [angular-front-end](https://github.com/LVisir/angular-rental-car).
 ## Technologies
 - Spring 2.6.3
