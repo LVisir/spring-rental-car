@@ -6,3 +6,9 @@ values ('Giani', 'Caccamo', '1956-11-15', 'CUSTOMER', 'caccamo@gmail.com', '1234
 
 insert into vehicles (license_plate, manufacturer, typology, model, registr_year)
 values ('AA123BK', 'Toyota', 'COMPACT', 'SummerMoon', '2000-01-01');
+
+insert into vehicles (license_plate, manufacturer, typology, model, registr_year)
+values ('ZT432KJ', 'Peugeot', 'SUV', 'RoadSilk', '2007-03-10');
+
+insert into vehicles (license_plate, manufacturer, typology, model, registr_year)
+values ('PY787NM', 'Suzuki', 'CITY', 'Cosmopolitan', '2011-11-08');
