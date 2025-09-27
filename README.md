@@ -20,11 +20,14 @@ Back-end Spring boot project of a simple rental car application.
 A back-end project made of three entities: vehicles, users, bookings. Each user can rent a vehicles for a period of time. Some users are 'SUPERUSER' and they are the admin. They can insert, update, delete each data in the database.
 ## Introduction
 
-The goal of this project is to provide a small-scale demonstration of how modern microservice architectures are structured, offering an overview of Spring Boot, REST APIs, JWT authentication, Docker, and Swagger. The project uses a database spun up via the images provided by MySQL. Note: since this is for educational purposes, the database is not persistent. When the container is removed, all data will be lost. For the fron-end part please take a look one of this two repo: [react-front-end](https://github.com/LVisir/react-rental-car), [angular-front-end](https://github.com/LVisir/angular-rental-car).
+The goal of this project is to provide a small-scale demonstration of how modern microservice architectures are structured, offering an overview of [Spring Boot](https://spring.io/projects/spring-boot), [REST API](https://it.wikipedia.org/wiki/Representational_state_transfer), [JWT authentication](https://www.jwt.io/introduction), [Docker](https://docs.docker.com/manuals/), and [Swagger](https://swagger.io/). The project uses a database spun up via the images provided by the MySQL Docker Hub. 
+
+Note: since this is for educational purposes, the database is not persistent. When the container is removed, all data will be lost. For the fron-end part please take a look one of this two repo: [react-front-end](https://github.com/LVisir/react-rental-car), [angular-front-end](https://github.com/LVisir/angular-rental-car).
 ## Technologies
 - Spring 2.6.3
 - Java 17
 - MySQL 8
+- Docker
 ## Setup
 Easy to use, you just need **docker** installed. Inside the root of the project run:
 
@@ -33,7 +36,7 @@ Easy to use, you just need **docker** installed. Inside the root of the project 
 ```
 When the log will say "Started RentalCarApplication" it means that is ready to use:
 
-![](./readme_pictures/diagram%20e_r%20final.png)
+![](./readme_pictures/app_started.png)
 
 Check [http://localhost:8091/swagger-ui/index.html](http://localhost:8091/swagger-ui/index.html) to see the API exposed. Check the [Swagger](#swagger) chapter to have more info on how the app works. Check the repo x to try it out with the front-end integrated.
 
@@ -46,6 +49,14 @@ API documentation in [http://localhost:8091/swagger-ui/index.html](http://localh
 
 All the API could be reached only with the token. Try the ```/login``` with ```test@gmail.com``` as email and ```1234``` as password. With the access token obtained authorize the user. **Note:** The token in this app is not called ```Bearer``` but ```LoginToken```:
 ![](./readme_pictures/swagger_authorize.png)
+
+Example of a curl to better understand the structure of a request:
+```
+curl -X 'GET' \
+  'http://localhost:8091/vehicles' \
+  -H 'accept: application/json' \
+  -H 'Authorization: LoginToken eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjYXJsb0BnbWFpbC5jb20iLCJyb2xlcyI6WyJTVVBFUlVTRVIiXX0.dWcLRKOCefdoqfgF44_qQU6ESd_rgfMWgOzEcbf_FX8'
+```
 
 ## If Swagger is not enough
 
@@ -65,19 +76,6 @@ All the API could be reached only with the token. Try the ```/login``` with ```t
 | `password`      | `1234` | The password of the SUPERUSER **\***|
 
 The returned value is the **access_token**, that represent the alphanumeric code needed to send any other request.
-
-**\*** Because at the beginning there is no data, insert some mock users and vehicles in the MySQL db to test the API:
-
-```
-insert into users (name, surname, birth_date, role, email, password, cf)
-values ('Jhon', 'McDonald', '1997-03-01', 'SUPERUSER', 'test@gmail.com', '1234', 'AAABBBCCCEEERRR');
-
-insert into users (name, surname, birth_date, role, email, password, cf)
-values ('Giani', 'Caccamo', '1956-11-15', 'CUSTOMER', 'caccamo@gmail.com', '1234', 'ZZZKKKSSSDDDWWW');
-
-insert into vehicles (license_plate, manufacturer, typology, model, registr_year)
-values ('AA123BK', 'Toyota', 'COMPACT', 'SummerMoon', '2000-01-01');
-```
 
 ## API Reference: USER
 
@@ -443,6 +441,3 @@ Every request must have a specified header telling the db wich user is calling  
 [![portfolio](https://img.shields.io/badge/my_portfolio-000?style=for-the-badge&logo=ko-fi&logoColor=white)](https://github.com/LVisir)
 [![linkedin](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/edoardo-mariani-2903a5262/)
 
-swagger urls:
-### http://localhost:8091/swagger-ui/index.html
-### http://localhost:8091/v3/api-docs
