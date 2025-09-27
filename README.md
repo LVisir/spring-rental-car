@@ -34,7 +34,7 @@ Easy to use, you just need **docker** installed. Inside the root of the project 
 ```
 ./deploy.sh
 ```
-When the log will say "Started RentalCarApplication" it means that is ready to use:
+Don't panic if some errors pops up, just wait. When the log will say "Started RentalCarApplication" it means that is ready to use:
 
 ![](./readme_pictures/app_started.png)
 
