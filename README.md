@@ -29,7 +29,7 @@ Note: since this is for educational purposes, the database is not persistent. Wh
 - MySQL 8
 - Docker
 ## Setup
-Easy to use, you just need **docker** installed and ports 8091, 3306 free. Inside the root of the project run:
+Easy to use, you just need **docker** installed and ports 8091, 3306 free (one for spring boot and one for mysql respectively). Inside the root of the project run:
 
 ```
 ./deploy.sh
