@@ -35,7 +35,7 @@ Easy to use, you just need **docker** installed. Inside the root of the project 
 ```
 When the log will say "Started RentalCarApplication" it means that is ready to use:
 
-![](./readme_pictures/app_started)
+![](./readme_pictures/app_started.png)
 
 Check [http://localhost:8091/swagger-ui/index.html](http://localhost:8091/swagger-ui/index.html) to see the API exposed. Check the [Swagger](#swagger) chapter to have more info on how the app works. Check the repo x to try it out with the front-end integrated.
 
