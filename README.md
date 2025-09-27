@@ -27,6 +27,7 @@ Note: since this is for educational purposes, the database is not persistent. Wh
 - Spring 2.6.3
 - Java 17
 - MySQL 8
+- Docker
 ## Setup
 Easy to use, you just need **docker** installed. Inside the root of the project run:
 
