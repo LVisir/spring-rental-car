@@ -50,6 +50,14 @@ API documentation in [http://localhost:8091/swagger-ui/index.html](http://localh
 All the API could be reached only with the token. Try the ```/login``` with ```test@gmail.com``` as email and ```1234``` as password. With the access token obtained authorize the user. **Note:** The token in this app is not called ```Bearer``` but ```LoginToken```:
 ![](./readme_pictures/swagger_authorize.png)
 
+Example of a curl to better understand the structure of a request:
+```
+curl -X 'GET' \
+  'http://localhost:8091/vehicles' \
+  -H 'accept: application/json' \
+  -H 'Authorization: LoginToken eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjYXJsb0BnbWFpbC5jb20iLCJyb2xlcyI6WyJTVVBFUlVTRVIiXX0.dWcLRKOCefdoqfgF44_qQU6ESd_rgfMWgOzEcbf_FX8'
+```
+
 ## If Swagger is not enough
 
 #### Login (ANYONE)
