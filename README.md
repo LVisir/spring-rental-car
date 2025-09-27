@@ -77,19 +77,6 @@ curl -X 'GET' \
 
 The returned value is the **access_token**, that represent the alphanumeric code needed to send any other request.
 
-**\*** Because at the beginning there is no data, insert some mock users and vehicles in the MySQL db to test the API:
-
-```
-insert into users (name, surname, birth_date, role, email, password, cf)
-values ('Jhon', 'McDonald', '1997-03-01', 'SUPERUSER', 'test@gmail.com', '1234', 'AAABBBCCCEEERRR');
-
-insert into users (name, surname, birth_date, role, email, password, cf)
-values ('Giani', 'Caccamo', '1956-11-15', 'CUSTOMER', 'caccamo@gmail.com', '1234', 'ZZZKKKSSSDDDWWW');
-
-insert into vehicles (license_plate, manufacturer, typology, model, registr_year)
-values ('AA123BK', 'Toyota', 'COMPACT', 'SummerMoon', '2000-01-01');
-```
-
 ## API Reference: USER
 
 Every request must have a specified header telling the db wich user is calling  (**access_token**). Near to the API call it is written the role that has that permission and no role it means that every role can request that API.
