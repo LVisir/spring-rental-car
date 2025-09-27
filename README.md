@@ -10,7 +10,8 @@ Back-end Spring boot project of a simple rental car application.
  - [Technologies](#technologies)
  - [Setup](#setup)
  - [Database Schema](#database-schema)
- - [API Reference](#api-reference)
+ - [Swagger](#swagger)
+ - [If Swagger is not enough](#api-reference)
  - [Links](#-links)
  
 
@@ -19,60 +20,34 @@ Back-end Spring boot project of a simple rental car application.
 A back-end project made of three entities: vehicles, users, bookings. Each user can rent a vehicles for a period of time. Some users are 'SUPERUSER' and they are the admin. They can insert, update, delete each data in the database.
 ## Introduction
 
-The goal of this project is to learn how [Spring](https://spring.io/projects/spring-boot) and [REST API](https://it.wikipedia.org/wiki/Representational_state_transfer) works. The data are fetched from a [MySQL](https://www.mysql.com) database and thanks to  [PostMan](https://www.postman.com/) the requests can be simulated like a classic client otherwise clone one of this two repo to have a local front-end: [react-front-end](https://github.com/LVisir/react-rental-car), [angular-front-end](https://github.com/LVisir/angular-rental-car).
+The goal of this project is to provide a small-scale demonstration of how modern microservice architectures are structured, offering an overview of Spring Boot, REST APIs, JWT authentication, Docker, and Swagger. The project uses a database spun up via the images provided by MySQL. Note: since this is for educational purposes, the database is not persistent. When the container is removed, all data will be lost. For the fron-end part please take a look one of this two repo: [react-front-end](https://github.com/LVisir/react-rental-car), [angular-front-end](https://github.com/LVisir/angular-rental-car).
 ## Technologies
-- Spring 2.6.*
+- Spring 2.6.3
 - Java 17
-- MySQL
+- MySQL 8
 ## Setup
-You need a MySQL database called ``` rental_car_db ``` that is running on localhost:3306 (check [ application.properties](https://github.com/LVisir/spring-rental-car/blob/master/src/main/resources/application.properties) for more details and to set the username and password of your db). To insert the table in the database just copy paste exactly in the following order: 
+Easy to use, you just need **docker** installed. Inside the root of the project run:
 
-``` 
-create table vehicles(
-id int auto_increment not null primary key,
-license_plate varchar(7) not null unique,
-manufacturer varchar(50) not null,
-typology enum('SUV','MINIVAN','COMPACT')  not null default 'COMPACT',
-model varchar(50) not null,
-registr_year date not null
-);
-
-create table users(
-id int auto_increment not null primary key,
-name varchar(50) not null,
-surname varchar(50) not null,
-birth_date date not null,
-role enum('CUSTOMER','SUPERUSER') not null default 'CUSTOMER',
-email varchar(50) not null unique,
-password varchar(50) not null,
-cf varchar(15) not null unique
-);
-
-create table bookings(
-id int auto_increment not null primary key,
-start date not null,
-end date not null,
-user_id int not null,
-approval boolean not null default 0,
-vehicle_id int not null,
-foreign key (user_id)
-references users(id)
-	on delete cascade
-	on update cascade,
-foreign key (vehicle_id)
-references vehicles(id)
-	on delete cascade
-	on update cascade
-);
 ```
+./deploy.sh
+```
+When the log will say "Started RentalCarApplication" it means that is ready to use:
 
-Now that you have the database defined, clone the repository, install dependencies with ``` mvn install ``` and execute. The back-end is running on port 8091.
+![](./readme_pictures/diagram%20e_r%20final.png)
 
-Note: because all the request are available only for ```CUSTOMER``` or for ```SUPERUSER```, they have a specified header (**access_token**). Check next sections for more details.
+Check [http://localhost:8091/swagger-ui/index.html](http://localhost:8091/swagger-ui/index.html) to see the API exposed. Check the [Swagger](#swagger) chapter to have more info on how the app works. Check the repo x to try it out with the front-end integrated.
+
+The script will build the app based on what is written inside the **docker-compose.yml** file. First, it will create an instance of mysql; inside, it will automatically create the database schema filled with some data to instantly try it out thanks on what is inside the folder ```initdb```. The ```SUPERUSER``` created will be accessible via ```test@gmail.com``` as email and ```1234``` as password (Check the [Swagger](#swagger) chapter to have more info on how the app works or use the repo x to try it out with the front-end integrated). Secondly, it will build and run the spring boot app.
 ## Database schema
 
-![](./diagram%20e_r%20final.png)
-## API Reference
+![](./readme_pictures/diagram%20e_r%20final.png)
+## Swagger
+API documentation in [http://localhost:8091/swagger-ui/index.html](http://localhost:8091/swagger-ui/index.html).
+
+All the API could be reached only with the token. Try the ```/login``` with ```test@gmail.com``` as email and ```1234``` as password. With the access token obtained authorize the user. **Note:** The token in this app is not called ```Bearer``` but ```LoginToken```:
+![](./readme_pictures/swagger_authorize.png)
+
+## If Swagger is not enough
 
 #### Login (ANYONE)
 
