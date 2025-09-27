@@ -20,7 +20,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
-@Configuration @EnableWebSecurity @RequiredArgsConstructor
+@Configuration
+@EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     // because there is @RequiredArgsConstructor (that will build a constructor on the fly for this variable)
@@ -53,6 +55,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // REMEMBER: THE ORDER MATTERS! Do it from the smaller to the bigger
         http.authorizeRequests().antMatchers("/login/**").permitAll();
 
+        http.authorizeRequests().antMatchers(
+                "/swagger-ui.html",
+                "/swagger-ui/**",
+                "/v3/api-docs/**"
+        ).permitAll();
+
         http.authorizeRequests().antMatchers(GET, "/users", "/users/customers",
                 "/users/customers/normalSearch", "/users/*").hasAnyAuthority("SUPERUSER");
         http.authorizeRequests().antMatchers(GET, "/users/customers/id/*", "/users/customers/email/*", "/users/email/*").hasAnyAuthority("SUPERUSER", "CUSTOMER");
@@ -63,18 +71,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers(GET, "/bookings").hasAnyAuthority("SUPERUSER");
         http.authorizeRequests().antMatchers(GET, "/bookings/search").hasAnyAuthority("SUPERUSER");
         http.authorizeRequests().antMatchers(GET, "/bookings/*").hasAnyAuthority("SUPERUSER", "CUSTOMER");
-        http.authorizeRequests().antMatchers(GET, "/bookings/customers/*").hasAnyAuthority( "CUSTOMER");
-        http.authorizeRequests().antMatchers(GET, "/bookings/customers/email/*").hasAnyAuthority( "CUSTOMER");
-        http.authorizeRequests().antMatchers(GET, "/bookings/customers/*/search").hasAnyAuthority( "CUSTOMER");
+        http.authorizeRequests().antMatchers(GET, "/bookings/customers/*").hasAnyAuthority("CUSTOMER");
+        http.authorizeRequests().antMatchers(GET, "/bookings/customers/email/*").hasAnyAuthority("CUSTOMER");
+        http.authorizeRequests().antMatchers(GET, "/bookings/customers/*/search").hasAnyAuthority("CUSTOMER");
         http.authorizeRequests().antMatchers(POST, "/bookings/add").hasAnyAuthority("SUPERUSER", "CUSTOMER");
         http.authorizeRequests().antMatchers(PUT, "/bookings/update/*").hasAnyAuthority("SUPERUSER", "CUSTOMER");
         http.authorizeRequests().antMatchers(DELETE, "/bookings/delete/*").hasAnyAuthority("SUPERUSER", "CUSTOMER");
 
-        http.authorizeRequests().antMatchers(GET, "/vehicles","/vehicles/*").hasAnyAuthority( "SUPERUSER", "CUSTOMER");
+        http.authorizeRequests().antMatchers(GET, "/vehicles", "/vehicles/*").hasAnyAuthority("SUPERUSER", "CUSTOMER");
         http.authorizeRequests().antMatchers(POST, "/vehicles/add").hasAnyAuthority("SUPERUSER");
         http.authorizeRequests().antMatchers(DELETE, "/vehicles/delete/*").hasAnyAuthority("SUPERUSER");
         http.authorizeRequests().antMatchers(PUT, "/vehicles/update/*").hasAnyAuthority("SUPERUSER");
-        http.authorizeRequests().antMatchers(GET, "/vehicles/add").hasAnyAuthority( "SUPERUSER");
+        http.authorizeRequests().antMatchers(GET, "/vehicles/add").hasAnyAuthority("SUPERUSER");
 
         // this filter come before all others filter
         http.addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
@@ -90,7 +98,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     // take the bean AuthenticationManager
     @Bean
     @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception{
+    public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManager();
     }
 
