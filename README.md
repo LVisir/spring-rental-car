@@ -41,6 +41,8 @@ Don't panic if some errors pops up, just wait. When the log will say "Started Re
 Check [http://localhost:8091/swagger-ui/index.html](http://localhost:8091/swagger-ui/index.html) to see the API exposed. Check the [Swagger](#swagger) chapter to have more info on how the app works. Check the repo x to try it out with the front-end integrated.
 
 The script will build the app based on what is written inside the **docker-compose.yml** file. First, it will create an instance of mysql; inside, it will automatically create the database schema filled with some data to instantly try it out thanks on what is inside the folder ```initdb```. The ```SUPERUSER``` created will be accessible via ```test@gmail.com``` as email and ```1234``` as password (Check the [Swagger](#swagger) chapter to have more info on how the app works or use the repo x to try it out with the front-end integrated). Secondly, it will build and run the spring boot app.
+
+To clean the docker containers and images generated from the ```./deploy.sh``` script just run ```./clean_deploy.sh```.
 ## Database schema
 
 ![](./readme_pictures/diagram%20e_r%20final.png)
