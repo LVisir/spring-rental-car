@@ -17,10 +17,10 @@ Back-end Spring boot project of a simple rental car application.
 
 ## General Info
 
-A back-end project made of three entities: vehicles, users, bookings. Each user can rent a vehicles for a period of time. Some users are 'SUPERUSER' and they are the admin. They can insert, update, delete each data in the database.
+A back-end project made of three entities: vehicles, users, bookings. Each user can rent a vehicles for a period of time. Some users are 'SUPERUSER' and they are the admin. They can insert, update, delete each data in the database. Other users are 'CUSTOMER'. An user cannot rent a car in the period he has rented another car. When an user rent a car the request must be approved first before renting another one. Only 'SUPERUSER' can approve the bookings.
 ## Introduction
 
-The goal of this project is to provide a small-scale demonstration of how modern microservice architectures are structured, offering an overview of [Spring Boot](https://spring.io/projects/spring-boot), [REST API](https://it.wikipedia.org/wiki/Representational_state_transfer), [JWT authentication](https://www.jwt.io/introduction), [Docker](https://docs.docker.com/manuals/), and [Swagger](https://swagger.io/). The project uses a database spun up via the images provided by the MySQL Docker Hub. 
+The goal of this project is to provide a small-scale demonstration of how REST architectural style are structured, offering an overview of [Spring Boot](https://spring.io/projects/spring-boot), [REST API](https://it.wikipedia.org/wiki/Representational_state_transfer), [JWT authentication](https://www.jwt.io/introduction), [Docker](https://docs.docker.com/manuals/), and [Swagger](https://swagger.io/). The project uses a database spun up via the images provided by the MySQL Docker Hub. 
 
 Note: since this is for educational purposes, the database is not persistent. When the container is removed, all data will be lost. For the fron-end part please take a look one of this two repo: [react-front-end](https://github.com/LVisir/react-rental-car), [angular-front-end](https://github.com/LVisir/angular-rental-car).
 ## Technologies
@@ -56,6 +56,22 @@ curl -X 'GET' \
   'http://localhost:8091/vehicles' \
   -H 'accept: application/json' \
   -H 'Authorization: LoginToken eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjYXJsb0BnbWFpbC5jb20iLCJyb2xlcyI6WyJTVVBFUlVTRVIiXX0.dWcLRKOCefdoqfgF44_qQU6ESd_rgfMWgOzEcbf_FX8'
+```
+
+SUPERUSER credentials:
+```
+test@gmail.com
+```
+```
+1234
+```
+
+CUSTOMER credentials:
+```
+caccamo@gmail.com
+```
+```
+1234
 ```
 
 ## If Swagger is not enough
