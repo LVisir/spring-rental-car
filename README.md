@@ -58,6 +58,22 @@ curl -X 'GET' \
   -H 'Authorization: LoginToken eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjYXJsb0BnbWFpbC5jb20iLCJyb2xlcyI6WyJTVVBFUlVTRVIiXX0.dWcLRKOCefdoqfgF44_qQU6ESd_rgfMWgOzEcbf_FX8'
 ```
 
+SUPERUSER credentials:
+```
+test@gmail.com
+```
+```
+1234
+```
+
+CUSTOMER credentials:
+```
+caccamo@gmail.com
+```
+```
+1234
+```
+
 ## If Swagger is not enough
 
 #### Login (ANYONE)
