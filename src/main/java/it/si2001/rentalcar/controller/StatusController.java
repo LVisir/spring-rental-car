@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/actuator")
+@RequestMapping("/healthcheck")
 public class StatusController {
 
-    @GetMapping("/health")
+    @GetMapping
     public ResponseEntity<String> status() {
         return new ResponseEntity<>("OK", HttpStatus.OK);
     }
