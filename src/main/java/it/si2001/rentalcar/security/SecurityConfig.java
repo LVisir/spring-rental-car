@@ -59,7 +59,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/swagger-ui.html",
                 "/swagger-ui/**",
                 "/v3/api-docs/**",
-                "/actuator/health"
+                "/healthcheck"
         ).permitAll();
 
         http.authorizeRequests().antMatchers(GET, "/users", "/users/customers",
