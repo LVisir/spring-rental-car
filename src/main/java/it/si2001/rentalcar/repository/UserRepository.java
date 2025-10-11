@@ -26,7 +26,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByCf(String cf);
 
-    @Query("SELECT 1 FROM DUAL")
+    @Query(value = "SELECT 1", nativeQuery = true)
     Integer testConnection();
 
 }
