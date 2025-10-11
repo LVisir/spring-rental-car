@@ -2,6 +2,7 @@ package it.si2001.rentalcar.repository;
 
 import it.si2001.rentalcar.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
@@ -24,5 +25,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
 
     Optional<User> findByCf(String cf);
+
+    @Query("SELECT 1 FROM DUAL")
+    Integer testConnection();
 
 }

@@ -996,6 +996,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     }
 
+    @Override
+    public Integer testConnection() {
+        return userRepository.testConnection();
+    }
+
 
     /**
      * From URL ?_sort=field1, field2, ..., fieldN&_order=asc,desc,...,asc

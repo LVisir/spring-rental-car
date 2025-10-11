@@ -57,4 +57,6 @@ public interface UserService {
 
     User getCustomer(Long id);
 
+    Integer testConnection();
+
 }
