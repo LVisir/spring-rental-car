@@ -33,7 +33,11 @@ Easy to use, you just need **docker** installed and ports 8091, 3306 free (one f
 
 ```
 git clone https://github.com/LVisir/spring-rental-car.git
+```
+```
 cd spring-rental-car
+```
+```
 ./deploy.sh
 ```
 Don't panic if some errors pops up, just wait. When the log will say "Started RentalCarApplication" it means that is ready to use:
